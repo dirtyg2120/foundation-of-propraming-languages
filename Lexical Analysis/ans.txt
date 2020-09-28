@@ -1,0 +1,19 @@
+Question 1
+TMP: [a-z][a-z0-9]*
+
+Question 2
+fragment LETTER: [a-z];
+TMP: LETTER[a-z0-9]*
+
+Question 3
+a)
+FLOAT: [0-9]+ '.'? [0-9]* EXPONENT?
+
+fragment
+EXPONENT: 'e-' [0-9]+;
+
+b)
+strings: LETTER+ ' '' ' LETTER+;
+
+Question 4
+
