@@ -1,0 +1,5 @@
+initial/src/main/bkit/utils
+initial/src/main/bkit/astgen
+initial/src/main/bkit/checker
+# Maven build folders
+target/
