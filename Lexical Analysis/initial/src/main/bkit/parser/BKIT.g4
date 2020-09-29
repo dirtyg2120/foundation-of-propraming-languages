@@ -49,10 +49,10 @@ fragment DIGIT: [0-9];
 IDENTIFIER_02: LETTER (LETTER | DIGIT)*;
 
 //question 3
-fragment EXPONENT: 'e-' [0-9]+;
-FLOAT: [0-9]+ '.'? [0-9]* EXPONENT?;
+fragment EXPONENT: 'e-' DIGIT+;
+FLOAT: DIGIT+ '.'? DIGIT* EXPONENT?;
 
-strings: LETTER+ ' ' ' '? LETTER+;
+STRINGS: LETTER+ ' ' ' '? LETTER+;
 /*************************/
 
 ERROR_CHAR: .;
