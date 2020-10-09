@@ -28,13 +28,45 @@ program: VAR COLON ID SEMI EOF;
 
 // comment: '**' (options {greedy=false;} : .)* '**';
 
+// identifiers
 ID: [a-z][_a-zA-Z0-9]*;
 
-SEMI: ';';
-
-COLON: ':';
-
+// keywords
 VAR: 'Var';
+BODY: 'Body';
+ELSE: 'Else';
+ENDFOR: 'ElseFor';
+IF: 'If';
+ENDDO: 'EndDo';
+BREAK: 'Break';
+ELSEIF: 'ElseIf';
+ENDWHILE: 'EndWhile';
+PARAMETER: 'Parameter';
+WHILE: 'While';
+CONTINUE: 'Continue';
+ENDBODY: 'EndBody';
+FOR: 'For';
+RETURN: 'Return';
+TRUE: 'True';
+DO: 'Do';
+ENDIF: 'EndIf';
+FUNCTION: 'Function';
+THEN: 'Then';
+FALSE: 'False';
+
+// seperators
+LB_ROUND: '(';
+RB_ROUND: ')';
+LB_SQUARE: '[';
+RB_SQUARE: ']';
+LB_CURLY: '{';
+RB_CURLY: '}';
+COLON: ':';
+SEMICOLON: ';';
+DOT: '.';
+COMMA: ',';
+
+
 
 WS: [ \t\r\n]+ -> skip; // skip spaces, tabs, newlines
 
