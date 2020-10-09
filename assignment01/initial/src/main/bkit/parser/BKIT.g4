@@ -20,22 +20,27 @@ def emit(self):
         return result;
 }
 
-options{
-	language=Python3;
+options {
+	language = Python3;
 }
 
-program  : VAR COLON ID SEMI EOF ;
+program: VAR COLON ID SEMI EOF;
 
-ID: [a-z]+ ;
+// comment: '**' (options {greedy=false;} : .)* '**';
 
-SEMI: ';' ;
+ID: [a-z][_a-zA-Z0-9]*;
 
-COLON: ':' ;
+SEMI: ';';
 
-VAR: 'Var' ;
+COLON: ':';
 
-WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
+VAR: 'Var';
 
+WS: [ \t\r\n]+ -> skip; // skip spaces, tabs, newlines
+
+fragment DIGIT: [0-9];
+fragment UPPER_LETTER: [A-Z];
+fragment LOWER_LETTER: [a-z];
 
 ERROR_CHAR: .;
 UNCLOSE_STRING: .;
