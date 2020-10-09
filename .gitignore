@@ -5,3 +5,5 @@ target/
 # MacOSX files
 .DS_Store
 .antlr/
+solutions/
+testcases/
