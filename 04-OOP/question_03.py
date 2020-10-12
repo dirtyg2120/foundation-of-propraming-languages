@@ -16,8 +16,9 @@ class Number(Expr):
         super().__init__(*args, **kwargs)
         self.num = num
 
+    # print number
     def print(self):
-        print(self.num)  # print number attribute
+        print(self.num)
 
 
 class BinOp(Expr):
