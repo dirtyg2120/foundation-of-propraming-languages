@@ -58,13 +58,13 @@ statement_list:
 
 statement_assign: ID (LB_SQUARE exp RB_SQUARE)* ASSIGN exp SM;
 
-// statement_if:
-// 	IF exp THEN statement_list* (ELSEIF exp THEN statement_list*)* (
-// 		ELSE statement_list*
-// 	)? ENDIF DOT;
-
 statement_if:
-	IF THEN ENDIF DOT;
+	IF exp THEN statement_list* (ELSEIF exp THEN statement_list*)* (
+		ELSE statement_list*
+	)? ENDIF DOT;
+
+// statement_if:
+// 	IF THEN ENDIF DOT;
 
 statement_for:
 	FOR LB_ROUND ID ASSIGN exp CM exp CM exp RB_ROUND DO statement_list* ENDFOR DOT;
