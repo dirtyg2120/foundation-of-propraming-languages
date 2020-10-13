@@ -24,7 +24,7 @@ options {
 	language = Python3;
 }
 
-program: VAR COLON ID SEMI EOF;
+program: VAR COLON ID SM EOF;
 
 // comment: '**' (options {greedy=false;} : .)* '**';
 
@@ -33,25 +33,31 @@ ID: [a-z][_a-zA-Z0-9]*;
 
 // keywords
 VAR: 'Var';
-BODY: 'Body';
-ELSE: 'Else';
-ENDFOR: 'ElseFor';
-IF: 'If';
-ENDDO: 'EndDo';
-BREAK: 'Break';
-ELSEIF: 'ElseIf';
-ENDWHILE: 'EndWhile';
-PARAMETER: 'Parameter';
-WHILE: 'While';
-CONTINUE: 'Continue';
-ENDBODY: 'EndBody';
-FOR: 'For';
-RETURN: 'Return';
-TRUE: 'True';
-DO: 'Do';
-ENDIF: 'EndIf';
 FUNCTION: 'Function';
+PARAMETER: 'Parameter';
+
+BODY: 'Body';
+ENDBODY: 'EndBody';
+
+IF: 'If';
 THEN: 'Then';
+ELSEIF: 'ElseIf';
+ELSE: 'Else';
+ENDIF: 'EndIf';
+
+FOR: 'For';
+ENDFOR: 'EndFor';
+
+WHILE: 'While';
+DO: 'Do';
+ENDWHILE: 'EndWhile';
+ENDDO: 'EndDo';
+
+BREAK: 'Break';
+CONTINUE: 'Continue';
+RETURN: 'Return';
+
+TRUE: 'True';
 FALSE: 'False';
 
 // seperators
@@ -62,7 +68,7 @@ RB_SQUARE: ']';
 LB_CURLY: '{';
 RB_CURLY: '}';
 COLON: ':';
-SEMICOLON: ';';
+SM: ';';
 DOT: '.';
 COMMA: ',';
 
