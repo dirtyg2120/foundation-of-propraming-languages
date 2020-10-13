@@ -8,16 +8,12 @@ class LexerSuite(unittest.TestCase):
         """test identifiers"""
         self.assertTrue(TestLexer.checkLexeme("abc", "abc,<EOF>", 101))
 
-    # def test_lower_identifier(self):
-    #     """test identifiers"""
-    #     self.assertTrue(TestLexer.checkLexeme("abc", "abc,<EOF>", 101))
-
     # def test_lower_upper_id(self):
     #     self.assertTrue(TestLexer.checkLexeme("Var", "Var,<EOF>", 102))
 
-    # def test_wrong_token(self):
-    #     self.assertTrue(TestLexer.checkLexeme(
-    #         "ab?svn", "ab,Error Token ?", 103))
+    def test_wrong_token(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "ab?svn", "ab,Error Token ?", 103))
 
     # def test_integer(self):
     #     """test integers"""
@@ -38,108 +34,126 @@ class LexerSuite(unittest.TestCase):
     #     self.assertTrue(TestLexer.checkLexeme(
     #         """ "ab'"c\\n def"  """, """ab'"c\\n def,<EOF>""", 107))
 
-    # def test_01(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 1))
+    def test_01(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "a1pFUO1JHb", "a1pFUO1JHb,<EOF>", 1))
 
-    # def test_02(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 2))
+    def test_02(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "q7q@930AYp_", "q7q,Error Token @", 2))
 
-    # def test_03(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 3))
+    def test_03(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "I8wN8dn8WW_", "Error Token I", 3))
 
-    # def test_04(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 4))
+    def test_04(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "xtj_RD221UOk44Db_", "xtj_RD221UOk44Db_,<EOF>", 4))
 
-    # def test_05(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 5))
+    def test_05(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "MiFeX5cLSW", "Error Token M", 5))
 
-    # def test_06(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 6))
+    def test_06(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "ficaIyMewRJuIjCp", "ficaIyMewRJuIjCp,<EOF>", 6))
 
-    # def test_07(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 7))
+    def test_07(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "dNsF_KZX_zCD", "dNsF_KZX_zCD,<EOF>", 7))
 
-    # def test_08(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 8))
+    def test_08(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "Lgu0LLj9em", "Error Token L", 8))
 
-    # def test_09(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 9))
+    def test_09(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "t4hcOkB___jUrt5p2WP", "t4hcOkB___jUrt5p2WP,<EOF>", 9))
 
-    # def test_10(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 10))
+    def test_10(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "_dfFJzx9wf8OzkMQ", "Error Token _", 10))
 
-    # def test_11(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 11))
+    def test_11(self):
+        self.assertTrue(TestLexer.checkLexeme("0", "0,<EOF>", 11))
 
-    # def test_12(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 12))
+    def test_12(self):
+        self.assertTrue(TestLexer.checkLexeme("199", "199,<EOF>", 12))
 
-    # def test_13(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 13))
+    def test_13(self):
+        self.assertTrue(TestLexer.checkLexeme("0xEF", "0xEF,<EOF>", 13))
 
-    # def test_14(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 14))
+    def test_14(self):
+        self.assertTrue(TestLexer.checkLexeme("0XABC", "0XABC,<EOF>", 14))
 
-    # def test_15(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 15))
+    def test_15(self):
+        self.assertTrue(TestLexer.checkLexeme("0o567", "0o567,<EOF>", 15))
 
-    # def test_16(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 16))
+    def test_16(self):
+        self.assertTrue(TestLexer.checkLexeme("0O77", "0O77,<EOF>", 16))
 
     # def test_17(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 17))
+    #     self.assertTrue(TestLexer.checkLexeme("23872394087a123", "23872394087,Error Token a", 17))
 
-    # def test_18(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 18))
+    def test_18(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "28913798#fads", "28913798,Error Token #", 18))
 
     # def test_19(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 19))
+    #     self.assertTrue(TestLexer.checkLexeme("012912", "0,Error Token 1", 19))
 
-    # def test_20(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 20))
+    def test_20(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "0xDDG", "0xDD,Error Token G", 20))
 
-    # def test_21(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 21))
+    def test_21(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "0X101$DEF", "0X101,Error Token $", 21))
 
-    # def test_22(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 22))
+    def test_22(self):
+        self.assertTrue(TestLexer.checkLexeme("0P123", "0,Error Token P", 22))
 
-    # def test_23(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 23))
+    def test_23(self):
+        self.assertTrue(TestLexer.checkLexeme("12.0e3", "12.0e3,<EOF>", 23))
 
-    # def test_24(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 24))
+    def test_24(self):
+        self.assertTrue(TestLexer.checkLexeme("12e3", "12e3,<EOF>", 24))
 
-    # def test_25(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 25))
+    def test_25(self):
+        self.assertTrue(TestLexer.checkLexeme("12.e5", "12.e5,<EOF>", 25))
 
-    # def test_26(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 26))
+    def test_26(self):
+        self.assertTrue(TestLexer.checkLexeme("12.0E3", "12.0E3,<EOF>", 26))
 
-    # def test_27(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 27))
+    def test_27(self):
+        self.assertTrue(TestLexer.checkLexeme("12000.", "12000.,<EOF>", 27))
 
-    # def test_28(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 28))
+    def test_28(self):
+        self.assertTrue(TestLexer.checkLexeme(
+            "12000e-1", "12000e-1,<EOF>", 28))
 
     # def test_29(self):
 
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 29))
+    #     self.assertTrue(TestLexer.checkLexeme(
+    #         "12..0202", "12.,Error Token .", 29))
 
     # def test_30(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 30))
+    #     self.assertTrue(TestLexer.checkLexeme(
+    #         "12.0eE3", "12.0e,Error Token E", 30))
 
     # def test_31(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 31))
+    #     self.assertTrue(TestLexer.checkLexeme(".0101", ",Error Token .", 31))
 
     # def test_32(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 32))
+    #     self.assertTrue(TestLexer.checkLexeme(
+    #         "12.02e&1", "12.02e,Error Token &", 32))
 
     # def test_33(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 33))
+    #     self.assertTrue(TestLexer.checkLexeme(
+    #         "12.a5", "12.,Error Token a", 33))
 
-    # def test_34(self):
-    #     self.assertTrue(TestLexer.checkLexeme("", "", 34))
+    def test_34(self):
+        self.assertTrue(TestLexer.checkLexeme("** comment **", "<EOF>", 34))
 
     # def test_35(self):
     #     self.assertTrue(TestLexer.checkLexeme("", "", 35))
