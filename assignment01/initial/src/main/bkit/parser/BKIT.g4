@@ -63,8 +63,7 @@ statement_if:
 		ELSE statement_list*
 	)? ENDIF DOT;
 
-// statement_if:
-// 	IF THEN ENDIF DOT;
+// statement_if: IF THEN ENDIF DOT;
 
 statement_for:
 	FOR LB_ROUND ID ASSIGN exp CM exp CM exp RB_ROUND DO statement_list* ENDFOR DOT;
@@ -98,7 +97,10 @@ operands:
 	| function_call
 	| LB_ROUND exp RB_ROUND;
 
-literals: INT | FLOAT | BOOLEAN | ARRAY | STRING;
+literals: INT | FLOAT | BOOLEAN | array_literal | STRING;
+
+array_literal:
+	LB_CURLY WS* (WS* literals WS* (CM WS* literals WS*)*)? WS* RB_CURLY;
 
 begin_body: BODY COLON;
 end_body: ENDBODY DOT;
@@ -129,10 +131,9 @@ STRING:
     self.text = value[1:-1]
 };
 
-ARRAY:
-	LB_CURLY WS* (WS* LITERALS WS* (CM WS* LITERALS WS*)*)? WS* RB_CURLY;
+// ARRAY: LB_CURLY WS* (WS* LITERALS WS* (CM WS* LITERALS WS*)*)? WS* RB_CURLY;
 
-fragment LITERALS: INT | FLOAT | BOOLEAN | ARRAY | STRING;
+fragment LITERALS: INT | FLOAT | BOOLEAN | STRING;
 COMMENT: '**' .*? '**' -> skip; //** **
 
 /*========== identifiers ==========*/
