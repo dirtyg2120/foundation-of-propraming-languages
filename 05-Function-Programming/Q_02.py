@@ -1,5 +1,6 @@
 from functools import reduce
 
+
 def flatten_list_comp(lst):
     out_lst = []
     for e in lst:
@@ -15,7 +16,7 @@ def flatten_recur(lst):
 
 def flatten_high_order(lst):
     out_lst = []
-    out_lst = list(reduce(lambda x,y: x+y, lst))
+    out_lst = list(reduce(lambda x, y: x+y, lst))
     return out_lst
 
 
