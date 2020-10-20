@@ -20,9 +20,9 @@ def flatten_high_order(lst):
     return out_lst
 
 
-lst = [[1, 2, 3], ['a', 'b', 'c'], [1.1, 2.1, 3.1]]
+# lst = [[1, 2, 3], ['a', 'b', 'c'], [1.1, 2.1, 3.1]]
 
-print(flatten_list_comp(lst))
-print(flatten_recur(lst))
-print(flatten_high_order(lst))
-print(lst)
+# print(flatten_list_comp(lst))
+# print(flatten_recur(lst))
+# print(flatten_high_order(lst))
+# print(lst)
