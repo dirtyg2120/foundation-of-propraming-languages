@@ -1,9 +1,7 @@
 def dist(lst, n):
-    def dist_recur(lst):
-        if not lst:
-            return []
-        return [(lst[0], n)] + list(dist_recur(lst[1:]))
-    return (dist_recur(lst))
+    if not lst:
+        return []
+    return [(lst[0], n)] + list(dist(lst[1:], n))
 
 
 def dist_norm(lst, n):
