@@ -2,8 +2,7 @@ from functools import reduce
 
 
 def dist(lst, n):
-    out = list(map(lambda x:x, lst))
-    return out
+    return list(map(lambda x: [x, n], lst))
 
 
 print(dist([1, 2, 3], 4))
