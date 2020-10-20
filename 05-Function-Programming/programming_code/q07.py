@@ -2,14 +2,14 @@ def dist(lst, n):
     def dist_recur(lst):
         if not lst:
             return []
-        return [[lst[0], n]] + list(dist_recur(lst[1:]))
+        return [(lst[0], n)] + list(dist_recur(lst[1:]))
     return (dist_recur(lst))
 
 
 def dist_norm(lst, n):
     out = []
     for e in lst:
-        out.append([e, n])
+        out.append((e, n))
     return out
 
 
