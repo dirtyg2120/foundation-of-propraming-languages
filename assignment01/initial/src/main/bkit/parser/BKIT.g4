@@ -24,22 +24,16 @@ options {
 	language = Python3;
 }
 
-/*================================================================
- PROGRAM STRUCTURE ================================================================
- */
+/*====================================================== PROGRAM STRUCTURE ====================================================== */
 program: variable_declaration* func_declaration* EOF;
 
 variable_declaration: VAR COLON variable_list SM;
 variable_list: variable (CM variable)*;
-
 variable: ID (LB_SQUARE INT RB_SQUARE)* (ASSIGN literals)?;
 
 func_declaration: FUNCTION COLON ID param_declaration? body;
-
 param_declaration: PARAMETER COLON param_list;
-
 param_list: param (CM param)*;
-
 param: ID (LB_SQUARE INT RB_SQUARE)*;
 
 body: begin_body variable_declaration* statement_list* end_body;
@@ -111,17 +105,11 @@ end_body: ENDBODY DOT;
 
 INT: DECIMAL | HEX | OCTAL;
 fragment DECIMAL: DIGIT | [1-9]DIGIT*;
-fragment HEX: '0' [Xx][1-9A-F][0-9A-F]*;
-fragment OCTAL: '0' [Oo][1-7][0-7]*;
+fragment HEX: '0' [xX] (DIGIT | [A-F])*;
+fragment OCTAL: '0' [oO][0-7]*;
 
-FLOAT:
-	INT (
-		DECIMAL_PART
-		| EXPONENT_PART
-		| DECIMAL_PART EXPONENT_PART
-	);
-fragment DECIMAL_PART: '.' DIGIT*;
-fragment EXPONENT_PART: [Ee][+-]? DIGIT+;
+FLOAT: INT (DOT DIGIT* EXPONENT* | EXPONENT);
+fragment EXPONENT: [eE][+-]? DIGIT+;
 
 BOOLEAN: TRUE | FALSE;
 
