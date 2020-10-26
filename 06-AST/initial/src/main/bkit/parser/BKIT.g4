@@ -20,22 +20,29 @@ def emit(self):
         return result;
 }
 
-options{
-	language=Python3;
+options {
+	language = Python3;
 }
 
-program  : VAR COLON ID SEMI EOF ;
+program: vardecls EOF;
 
-ID: [a-z]+ ;
+vardecls: vardecl vardecltail;
 
-SEMI: ';' ;
+vardecltail: vardecl vardecltail |;
 
-COLON: ':' ;
+vardecl: mptype ids ';';
 
-VAR: 'Var' ;
+mptype: INTTYPE | FLOATTYPE;
 
-WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
+ids: ID ',' ids | ID;
 
+INTTYPE: 'int';
+
+FLOATTYPE: 'float';
+
+ID: [a-z]+;
+
+WS: [ \t\r\n]+ -> skip; // skip spaces, tabs, newlines
 
 ERROR_CHAR: .;
 UNCLOSE_STRING: .;
