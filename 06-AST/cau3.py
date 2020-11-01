@@ -1,7 +1,10 @@
+from MCVisitor import MCVisitor
+from MCParser import MCParser
+from AST import *
 class ASTGeneration(MPVisitor):
 
     def visitProgram(self, ctx: MPParser.ProgramContext):
-        return ctx.vardecls().accept(self)
+        return Program(ctx.vardecls().accept(self))
 
     def visitVardecls(self, ctx: MPParser.VardeclsContext):
         return ctx.vardecl().accept(self) + ctx.vardecltail().accept(self)
