@@ -11,7 +11,7 @@ class ASTGeneration(MPVisitor):
         return flatten
 
     def visitProgram(self, ctx: MPParser.ProgramContext):
-        return self.flatten([item.accept(self) for item in ctx.vardecl()])
+        return Program(self.flatten([item.accept(self) for item in ctx.vardecl()]))
 
     def visitVardecl(self, ctx: MPParser.VardeclContext):
         return [VarDecl(
