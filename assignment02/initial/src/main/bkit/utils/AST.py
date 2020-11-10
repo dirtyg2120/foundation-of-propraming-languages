@@ -78,14 +78,14 @@ class FuncDecl(Decl):
     def __str__(self):
         return "FuncDecl(" + str(self.name) + \
                 printlist(self.param)+ ",(" + printlist(self.body[0]) + \
-                printlist(self.body[1]) + ")"
+                printlist(self.body[1]) + "))"
     
     def accept(self, v, param):
         return v.visitFuncDecl(self, param)
 
 @dataclass
 class ArrayCell(LHS):
-    arr:Id
+    arr:Expr
     idx:List[Expr]
 
     def __str__(self):
@@ -171,7 +171,7 @@ class ArrayLiteral(Literal):
     value:List[Literal]
 
     def __str__(self):
-        return printlist(self.value,start="ArrayLiteral(",end=")")
+        return printlist(self.value,start="ArrayLiteral(",ending=")")
 
     def accept(self, v, param):
         return v.visitArrayLiteral(self, param)
@@ -217,7 +217,6 @@ class For(Stmt):
     idx1: Id
     expr1:Expr
     expr2:Expr
-    idx2: Id
     expr3:Expr
     loop: Tuple[List[VarDecl],List[Stmt]]
 
@@ -226,7 +225,6 @@ class For(Stmt):
         	str(self.idx1)+","+ \
         	str(self.expr1) + ","+ \
         	str(self.expr2) + "," + \
-        	str(self.idx2)+","+     \
         	str(self.expr3) + "," + \
         	printListStmt(self.loop) + ")"
 
