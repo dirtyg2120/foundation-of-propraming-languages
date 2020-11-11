@@ -6,7 +6,7 @@ import os
 sys.path.append('./test/')
 
 # Make sure that ANTLR_JAR is set to antlr-4.8-complete.jar
-os.environ['ANTLR_JAR'] = "../../../lib/antlr-4.8-complete.jar"
+os.environ['ANTLR_JAR'] = "../../../bin/antlr-4.8-complete.jar"
 ANTLR_JAR = os.environ.get('ANTLR_JAR')
 TARGET = '../target/main/mc/parser' if os.name == 'posix' else os.path.normpath(
     '../target/')
