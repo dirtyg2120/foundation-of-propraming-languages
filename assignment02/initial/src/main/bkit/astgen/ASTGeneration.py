@@ -1,7 +1,8 @@
 from main.bkit.utils.AST import *
 from BKITVisitor import BKITVisitor
 from BKITParser import BKITParser
-from AST import *
+# from AST import *
+from AST_copy import *
 from typing import List, Tuple
 from functools import reduce
 
@@ -214,7 +215,7 @@ class ASTGeneration(BKITVisitor):
             return Id(ctx.ID().getText())
         return ctx.getChild(0).accept(self)
 
-    def visitLiteral(self, ctx):
+    def visitLiterals(self, ctx):
         if ctx.INT():
             return IntLiteral(int(ctx.INT().getText()))
         elif ctx.FLOAT():
