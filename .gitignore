@@ -1,4 +1,4 @@
-!lib/antlr-4.8-complete.jar
+!./lib/antlr-4.8-complete.jar
 
 __pycache__/
 .vscode/
