@@ -7,12 +7,12 @@ class StaticCheck(Visitor):
 
     def visitVarDecl(self, ctx: VarDecl, o: object):
         if len(list(filter(lambda x: x.name == ctx.name, o))):
-            raise RedeclaredDeclaration(ctx.name)
+            raise RedeclaredVariable(ctx.name)
         return o + [ctx]
 
     def visitConstDecl(self, ctx: ConstDecl, o: object):
         if len(list(filter(lambda x: x.name == ctx.name, o))):
-            raise RedeclaredDeclaration(ctx.name)
+            raise RedeclaredConstant(ctx.name)
         return o + [ctx]
 
     def visitIntType(self, ctx: IntType, o: object):
