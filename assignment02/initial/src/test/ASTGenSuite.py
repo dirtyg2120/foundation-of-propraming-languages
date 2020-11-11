@@ -9,3 +9,5 @@ class ASTGenSuite(unittest.TestCase):
         input = """Var:x;"""
         expect = Program([VarDecl(Id("x"), [], None)])
         self.assertTrue(TestAST.checkASTGen(input, expect, 300))
+
+    

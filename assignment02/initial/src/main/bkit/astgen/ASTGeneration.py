@@ -1,20 +1,24 @@
-from initial.src.main.bkit.utils.AST import Id
+from main.bkit.utils.AST import *
 from BKITVisitor import BKITVisitor
 from BKITParser import BKITParser
 from AST import *
+from typing import List, Tuple
+from functools import reduce
 
 
 class ASTGeneration(BKITVisitor):
     def visitProgram(self, ctx: BKITParser.ProgramContext):
         # return Program([VarDecl(Id(ctx.ID().getText()), [], None)])
-        var_decl_lst = [element.accept(self)
-                        for element in ctx.variable_declaration()]
-        func_decl = [e.accept(self) for e in ctx.function_declaration()]
+        var_decl_lst = flatten([element.accept(self)
+                                for element in ctx.variable_declaration()])  # cần flatten lại cái thằng này
+        func_decl = [e.accept(self) for e in ctx.func_declaration()]
+        return Program(var_decl_lst + func_decl)
 
     def visitVariable_declaration(self, ctx: BKITParser.Variable_declarationContext):
         return ctx.variable_list().accept(self)
 
     def visitVariable_list(self, ctx):
+        # dễ tạo list trong list
         return [e.accept(self) for e in ctx.variable()]
 
     def visitVariable(self, ctx):
@@ -34,4 +38,197 @@ class ASTGeneration(BKITVisitor):
         else:
             param = []
         body = ctx.body().accept(self)
-        return Function(Id(ctx.ID().getText()),param, body)
+        return FuncDecl(Id(ctx.ID().getText()), param, body)
+
+    def visitParam_declaration(self, ctx):
+        return ctx.param_list().accept(self)
+
+    def visitParam_list(self, ctx):
+        return [e.accept(self) for e in ctx.param()]
+
+    def visitParam(self, ctx):
+        if ctx.INT():
+            varDimen_lst = [int(e.getText()) for e in ctx.INT()]
+        else:
+            varDimen_lst = []
+        return VarDecl(Id(ctx.ID().getText()), varDimen_lst, None)
+
+    def visitBody(self, ctx):
+        var_decl_lst = flatten([element.accept(self)
+                        for element in ctx.variable_declaration()])
+        stmt_lst = [element.accept(self) for element in ctx.stmt()]
+        return (var_decl_lst, stmt_lst)
+
+    def visitStmt(self, ctx):
+        return ctx.getChild(0).accept(self)
+
+    def visitStatement_assign(self, ctx):
+        if ctx.ID():
+            return Assign(Id(ctx.ID().getText()), ctx.exp().accept(self))
+        else:
+            return Assign(ctx.array_cell_decl().accept(self), ctx.exp().accept(self))
+
+    def visitArray_cell_decl(self, ctx):
+        exp_lst = [e.accept(self) for e in ctx.exp()]
+        if ctx.ID():
+            return ArrayCell(Id(ctx.ID().getText()), exp_lst)
+        else:
+            return ArrayCell(ctx.function_call().accept(self), exp_lst)
+
+    def visitStatement_if(self, ctx):
+        ifThenStmt_lst = List(ctx.if_then_stmt().accept(self))
+        if ctx.else_if_stmt():
+            ifThenStmt_lst = ifThenStmt_lst + \
+                [e.accept() for e in ctx.else_if_stmt()]
+        if ctx.else_stmt():
+            elseStmt = (ctx.else_stmt().accept(self))
+        else:
+            elseStmt = Tuple([], [])
+        return If(ifThenStmt_lst, elseStmt)
+
+    def visitIf_then_stmt(self, ctx):
+        expr = ctx.expr().accept(self)
+        return Tuple(expr, ctx.then_stmt().accept(self))
+
+    def visitElse_if_stmt(self, ctx):
+        expr = ctx.expr().accept(self)
+        return Tuple(expr, ctx.then_stmt().accept(self))
+
+    def visitElse_stmt(self, ctx):
+        return Tuple(ctx.then_stmt().accept(self))
+
+    def visitThen_stmt(self, ctx):
+        var_decl_lst = []
+        stmt_lst = []
+        if ctx.variable_declaration():
+            var_decl_lst = flatten([element.accept(self)
+                            for element in ctx.variable_declaration()])
+        if ctx.stmt():
+            stmt_lst = [element.accept(self) for element in ctx.stmt()]
+        return var_decl_lst, stmt_lst
+
+    def visitStatement_for(self, ctx):
+        var_decl_lst = []
+        stmt_lst = []
+        if ctx.variable_declaration():
+            var_decl_lst = flatten([element.accept(self)
+                            for element in ctx.variable_declaration()])
+        if ctx.stmt():
+            stmt_lst = [element.accept(self) for element in ctx.stmt()]
+        loop = Tuple(var_decl_lst, stmt_lst)
+        return For(Id(ctx.ID().getText()), ctx.exp(0).accept(self), ctx.exp(1).accept(self), ctx.exp(2).accept(self), loop)
+
+    def visitStatement_while(self, ctx):
+        expr = ctx.exp().accept(self)
+        var_decl_lst = []
+        stmt_lst = []
+        if ctx.variable_declaration():
+            var_decl_lst = flatten([element.accept(self)
+                            for element in ctx.variable_declaration()])
+        if ctx.stmt():
+            stmt_lst = [element.accept(self) for element in ctx.stmt()]
+        sl = Tuple(var_decl_lst, stmt_lst)
+        return While(expr, sl)
+
+    def visitStatement_do_while(self, ctx):
+        var_decl_lst = []
+        stmt_lst = []
+        if ctx.variable_declaration():
+            var_decl_lst = flatten([element.accept(self)
+                            for element in ctx.variable_declaration()])
+        if ctx.stmt():
+            stmt_lst = [element.accept(self) for element in ctx.stmt()]
+        sl = Tuple(var_decl_lst, stmt_lst)
+        expr = ctx.exp().accept(self)
+        return While(sl, expr)
+
+    def visitStatement_break(self, ctx):
+        return Break()
+
+    def visitStatement_continue(self, ctx):
+        return Continue()
+
+    def visitStatement_call(self, ctx):
+        func_call = ctx.function_call().accept(self)
+        return CallStmt(func_call.method, func_call.param)
+
+    def visitStatement_return(self, ctx):
+        expr = ctx.exp().accept(self) if ctx.exp() else None
+        return Return(expr)
+
+    def visitFunction_call(self, ctx):
+        method = Id(ctx.ID().getText())
+        param = [e.accept() for e in ctx.exp()]
+        return CallExpr(method, param)
+
+    def visitExp(self, ctx):
+        if ctx.getChildCount() == 1:
+            return ctx.exp1().accept(self)
+        op = ctx.getChild(1).accept(self)
+        left = ctx.exp1(0).accept(self)
+        right = ctx.exp1(1).accept(self)
+        return BinaryOp(op, left, right)
+
+    def visitExp1(self, ctx):
+        if ctx.getChildCount() == 1:
+            return ctx.exp2().accept(self)
+        op = ctx.getChild(1).accept(self)
+        left = ctx.exp1().accept(self)
+        right = ctx.exp2().accept(self)
+        return BinaryOp(op, left, right)
+
+    def visitExp2(self, ctx):
+        if ctx.getChildCount() == 1:
+            return ctx.exp3().accept(self)
+        op = ctx.getChild(1).accept(self)
+        left = ctx.exp2().accept(self)
+        right = ctx.exp3().accept(self)
+        return BinaryOp(op, left, right)
+
+    def visitExp3(self, ctx):
+        if ctx.getChildCount() == 1:
+            return ctx.exp4().accept(self)
+        op = ctx.getChild(1).accept(self)
+        left = ctx.exp3().accept(self)
+        right = ctx.exp4().accept(self)
+        return BinaryOp(op, left, right)
+
+    def visitExp4(self, ctx):
+        if ctx.getChildCount() == 1:
+            return ctx.exp5().accept(self)
+        op = ctx.getChild(0).accept
+        body = ctx.exp5().accept(self)
+        return UnaryOp(op, body)
+
+    def visitExp5(self, ctx):
+        if ctx.getChildCount() == 1:
+            return ctx.operand().accept(self)
+        op = ctx.getChild(0).accept
+        body = ctx.exp5().accept(self)
+        return UnaryOp(op, body)
+
+    def visitOperand(self, ctx):
+        if ctx.getChildCount() == 3:
+            return ctx.exp().accept(self)
+        elif ctx.ID():
+            return Id(ctx.ID().getText())
+        return ctx.getChild(0).accept(self)
+
+    def visitLiteral(self, ctx):
+        if ctx.INT():
+            return IntLiteral(int(ctx.INT().getText()))
+        elif ctx.FLOAT():
+            return FloatLiteral(float(ctx.FLOAT().getText()))
+        elif ctx.BOOLEAN():
+            return BooleanLiteral(bool(ctx.BOOLEAN().getText()))
+        elif ctx.STRING():
+            return StringLiteral(str(ctx.STRING().getText()))
+        return ctx.array_literal().accept(self)
+
+    def visitArray_literal(self, ctx):
+        value = [e.accept(self) for e in ctx.literals()]
+        return ArrayLiteral(value)
+
+
+def flatten(lst):
+    return list(reduce(lambda x, y: x+y, lst, []))

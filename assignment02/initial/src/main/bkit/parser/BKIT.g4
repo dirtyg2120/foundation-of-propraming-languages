@@ -36,10 +36,10 @@ param_declaration: PARAMETER COLON param_list;
 param_list: param (CM param)*;
 param: ID (LB_SQUARE INT RB_SQUARE)*;
 
-body: begin_body variable_declaration* statement_list* end_body;
+body: begin_body variable_declaration* stmt* end_body;
 
 /*========== Statements ==========*/
-statement_list:
+stmt:
 	statement_assign
 	| statement_if
 	| statement_for
@@ -50,21 +50,27 @@ statement_list:
 	| statement_call
 	| statement_return;
 
-statement_assign: ID (LB_SQUARE exp RB_SQUARE)* ASSIGN exp SM;
+// statement_assign: ID (LB_SQUARE exp RB_SQUARE)* ASSIGN exp SM;
+statement_assign: ( ID | array_cell_decl) ASSIGN exp SM;
 
-statement_if:
-	IF exp THEN statement_list* (ELSEIF exp THEN statement_list*)* (
-		ELSE statement_list*
-	)? ENDIF DOT;
+array_cell_decl: (ID | function_call) (LB_SQUARE exp RB_SQUARE)+;
+
+statement_if: if_then_stmt else_if_stmt* else_stmt? ENDIF DOT;
+if_then_stmt: IF exp THEN then_stmt;
+else_if_stmt: ELSE IF exp THEN then_stmt;
+else_stmt: ELSE then_stmt;
+then_stmt: variable_declaration* stmt*;
 
 // statement_if: IF THEN ENDIF DOT;
 
 statement_for:
-	FOR LB_ROUND ID ASSIGN exp CM exp CM exp RB_ROUND DO statement_list* ENDFOR DOT;
+	FOR LB_ROUND ID ASSIGN exp CM exp CM exp RB_ROUND DO variable_declaration* stmt* ENDFOR DOT;
 
-statement_while: WHILE exp DO statement_list* ENDWHILE DOT;
+statement_while:
+	WHILE exp DO variable_declaration* stmt* ENDWHILE DOT;
 
-statement_do_while: DO statement_list* WHILE exp ENDDO DOT;
+statement_do_while:
+	DO variable_declaration* stmt* WHILE exp ENDDO DOT;
 
 statement_break: BREAK SM;
 statement_continue: CONTINUE SM;
@@ -82,19 +88,13 @@ exp3:
 	exp3 (MUL_INT | MUL_FLOAT | DIV_INT | DIV_FLOAT | MOD_INT) exp4
 	| exp4;
 exp4: NOT exp4 | exp5;
-exp5: (SUB_FLOAT | SUB_INT) exp5 | operands;
+exp5: (SUB_FLOAT | SUB_INT) exp5 | operand;
 
-operands:
-	literals
-	| ID
-	| ID (LB_SQUARE exp RB_SQUARE)+
-	| function_call
-	| LB_ROUND exp RB_ROUND;
+operand: literals | ID | function_call | LB_ROUND exp RB_ROUND;
 
 literals: INT | FLOAT | BOOLEAN | array_literal | STRING;
 
-array_literal:
-	LB_CURLY WS* (WS* literals WS* (CM WS* literals WS*)*)? WS* RB_CURLY;
+array_literal: LB_CURLY ( literals (CM literals)*)? RB_CURLY;
 
 begin_body: BODY COLON;
 end_body: ENDBODY DOT;
