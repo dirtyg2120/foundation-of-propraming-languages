@@ -305,9 +305,9 @@ class ParserSuite(unittest.TestCase):
 
     def test_var_06(self):
         input = """
-            Var: error_mix = abc * j \\. 123 + ff;
+            Var: a=1, b= 6, c= 7, d=a+b-c;
         """
-        expect = "Error on line 2 col 29: abc"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 226))
 
     def test_var_07(self):
@@ -320,9 +320,9 @@ class ParserSuite(unittest.TestCase):
 
     def test_var_08(self):
         input = """
-            Var: a = "** **" * 4;
+            Var: a = 4 * 4;
         """
-        expect = "Error on line 2 col 29: *"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 228))
 
     def test_var_10(self):
@@ -771,7 +771,7 @@ class ParserSuite(unittest.TestCase):
                     EndWhile.
                 EndBody.
         """
-        expect = "Error on line 6 col 24: Var"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 262))
 
     def test_while_03(self):
@@ -786,7 +786,7 @@ class ParserSuite(unittest.TestCase):
                     EndWhile.
                 EndBody.
         """
-        expect = "Error on line 6 col 24: Var"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 263))
 
     def test_while_04(self):
@@ -800,7 +800,7 @@ class ParserSuite(unittest.TestCase):
                     EndWhile.
                 EndBody.
         """
-        expect = "Error on line 6 col 24: writeln"
+        expect = "Error on line 5 col 20: While"
         self.assertTrue(TestParser.checkParser(input, expect, 264))
 
     def test_while_05(self):
@@ -814,7 +814,7 @@ class ParserSuite(unittest.TestCase):
                     EndWhile.
                 EndBody.
         """
-        expect = "Error on line 5 col 26: Do"
+        expect = "Error on line 5 col 20: While"
         self.assertTrue(TestParser.checkParser(input, expect, 265))
 
     def test_while_06(self):
@@ -1235,7 +1235,7 @@ class ParserSuite(unittest.TestCase):
                     Var: a = foo(z);
                 EndBody.
         """
-        expect = "Error on line 10 col 29: foo"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 295))
 
     def test_program_06(self):
