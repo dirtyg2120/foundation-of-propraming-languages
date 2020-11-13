@@ -211,7 +211,7 @@ class ASTGenSuite(unittest.TestCase):
                     tmp2 = tmp0;
                 EndBody.
         """
-        expect = Program([VarDecl(Id("tmp0"),[],BooleanLiteral(True)),VarDecl(Id("tmp1"),[],BooleanLiteral(True)),VarDecl(Id("tmp2"),[],None),FuncDecl(Id("main"),[],tuple([[],[Assign(Id("tmp2"),Id("tmp0"))]]))])
+        expect = Program([VarDecl(Id("tmp0"),[],BooleanLiteral(True)),VarDecl(Id("tmp1"),[],BooleanLiteral(False)),VarDecl(Id("tmp2"),[],None),FuncDecl(Id("main"),[],tuple([[],[Assign(Id("tmp2"),Id("tmp0"))]]))])
         self.assertTrue(TestAST.checkASTGen(input, expect, 313))
 
     def test_random_14(self):
@@ -225,7 +225,7 @@ class ASTGenSuite(unittest.TestCase):
                     tmp1 = tmp2 && !tmp2;
                 EndBody.
         """
-        expect = Program([VarDecl(Id("tmp0"),[],BooleanLiteral(True)),VarDecl(Id("tmp1"),[],BooleanLiteral(True)),VarDecl(Id("tmp2"),[],None),FuncDecl(Id("main"),[],tuple([[],[Assign(Id("tmp0"),UnaryOp("!",Id("tmp0"))),Assign(Id("tmp2"),BinaryOp("||",Id("tmp0"),UnaryOp("!",Id("tmp1")))),Assign(Id("tmp1"),BinaryOp("&&",Id("tmp2"),UnaryOp("!",Id("tmp2"))))]]))])
+        expect = Program([VarDecl(Id("tmp0"),[],BooleanLiteral(True)),VarDecl(Id("tmp1"),[],BooleanLiteral(False)),VarDecl(Id("tmp2"),[],None),FuncDecl(Id("main"),[],tuple([[],[Assign(Id("tmp0"),UnaryOp("!",Id("tmp0"))),Assign(Id("tmp2"),BinaryOp("||",Id("tmp0"),UnaryOp("!",Id("tmp1")))),Assign(Id("tmp1"),BinaryOp("&&",Id("tmp2"),UnaryOp("!",Id("tmp2"))))]]))])
         self.assertTrue(TestAST.checkASTGen(input, expect, 314))
 
     def test_random_15(self):
@@ -411,8 +411,7 @@ class ASTGenSuite(unittest.TestCase):
                     boo = !!!True || False;
                 EndBody.
         """
-        expect = Program([FuncDecl(Id("foo"), [], tuple([[VarDecl(Id("boo"), [], None)], [Assign(Id("boo"), BinaryOp(
-            "||", UnaryOp("!", UnaryOp("!", UnaryOp("!", BooleanLiteral(True)))), BooleanLiteral(True)))]]))])
+        expect = Program([FuncDecl(Id("foo"),[],tuple([[VarDecl(Id("boo"),[],None)],[Assign(Id("boo"),BinaryOp("||",UnaryOp("!",UnaryOp("!",UnaryOp("!",BooleanLiteral(True)))),BooleanLiteral(False)))]]))])
         self.assertTrue(TestAST.checkASTGen(input, expect, 332))
 
     def test_assignment_03(self):
@@ -1312,8 +1311,7 @@ class ASTGenSuite(unittest.TestCase):
                     tmp0 = tmp1 && tmp0 || (True && True) || (False && False && (tmp[1]&&tmp[2])) ;
                 EndBody.
         """
-        expect = Program([FuncDecl(Id("foo"), [VarDecl(Id("tmp"), [200], None)], tuple([[], [Assign(Id("tmp0"), BinaryOp("||", BinaryOp("||", BinaryOp("&&", Id("tmp1"), Id("tmp0")), BinaryOp("&&", BooleanLiteral(
-            True), BooleanLiteral(True))), BinaryOp("&&", BinaryOp("&&", BooleanLiteral(True), BooleanLiteral(True)), BinaryOp("&&", ArrayCell(Id("tmp"), [IntLiteral(1)]), ArrayCell(Id("tmp"), [IntLiteral(2)])))))]]))])
+        expect = Program([FuncDecl(Id("foo"),[VarDecl(Id("tmp"),[200],None)],tuple([[],[Assign(Id("tmp0"),BinaryOp("||",BinaryOp("||",BinaryOp("&&",Id("tmp1"),Id("tmp0")),BinaryOp("&&",BooleanLiteral(True),BooleanLiteral(True))),BinaryOp("&&",BinaryOp("&&",BooleanLiteral(False),BooleanLiteral(False)),BinaryOp("&&",ArrayCell(Id("tmp"),[IntLiteral(1)]),ArrayCell(Id("tmp"),[IntLiteral(2)])))))]]))])
         self.assertTrue(TestAST.checkASTGen(input, expect, 385))
 
     def test_expression_06(self):
@@ -1326,8 +1324,7 @@ class ASTGenSuite(unittest.TestCase):
                     a[3 + foo(2)] = a[b[2][3]] + 4;
                 EndBody.
         """
-        expect = Program([FuncDecl(Id("foo"), [VarDecl(Id("tmp"), [], None)], tuple([[VarDecl(Id("i"), [], Id("tmp")), VarDecl(Id("tmp0"), [], BinaryOp("||", BinaryOp("||", BinaryOp("&&", Id("tmp1"), Id("tmp0")), BinaryOp("&&", BooleanLiteral(True), BooleanLiteral(True))), BinaryOp("&&", BinaryOp("&&", BooleanLiteral(True), BooleanLiteral(
-            True)), BinaryOp("&&", ArrayCell(Id("tmp"), [IntLiteral(1)]), ArrayCell(Id("tmp"), [IntLiteral(2)])))))], [Assign(ArrayCell(Id("a"), [BinaryOp("+", IntLiteral(3), CallExpr(Id("foo"), [IntLiteral(2)]))]), BinaryOp("+", ArrayCell(Id("a"), [ArrayCell(Id("b"), [IntLiteral(2), IntLiteral(3)])]), IntLiteral(4)))]]))])
+        expect = Program([FuncDecl(Id("foo"),[VarDecl(Id("tmp"),[],None)],tuple([[VarDecl(Id("i"),[],Id("tmp")),VarDecl(Id("tmp0"),[],BinaryOp("||",BinaryOp("||",BinaryOp("&&",Id("tmp1"),Id("tmp0")),BinaryOp("&&",BooleanLiteral(True),BooleanLiteral(True))),BinaryOp("&&",BinaryOp("&&",BooleanLiteral(False),BooleanLiteral(False)),BinaryOp("&&",ArrayCell(Id("tmp"),[IntLiteral(1)]),ArrayCell(Id("tmp"),[IntLiteral(2)])))))],[Assign(ArrayCell(Id("a"),[BinaryOp("+",IntLiteral(3),CallExpr(Id("foo"),[IntLiteral(2)]))]),BinaryOp("+",ArrayCell(Id("a"),[ArrayCell(Id("b"),[IntLiteral(2),IntLiteral(3)])]),IntLiteral(4)))]]))])
         self.assertTrue(TestAST.checkASTGen(input, expect, 386))
 
     def test_expression_07(self):

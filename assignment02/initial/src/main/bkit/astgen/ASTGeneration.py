@@ -187,11 +187,17 @@ class ASTGeneration(BKITVisitor):
 
     def visitLiteral(self, ctx):
         if ctx.INT():
-            return IntLiteral(int(ctx.INT().getText()))
+            _int = ctx.INT().getText()
+            if "o" in _int or "O" in _int:
+                return IntLiteral(int(_int,8))
+            elif "x" in _int or "X" in _int:
+                return IntLiteral(int(_int,16))
+            else:
+                return IntLiteral(int(_int))
         elif ctx.FLOAT():
             return FloatLiteral(float(ctx.FLOAT().getText()))
         elif ctx.BOOLEAN():
-            return BooleanLiteral(bool(ctx.BOOLEAN().getText()))
+            return BooleanLiteral(bool(ctx.BOOLEAN().getText() == 'True'))
         elif ctx.STRING():
             return StringLiteral(str(ctx.STRING().getText()))
         return ctx.getChild(0).accept(self)
