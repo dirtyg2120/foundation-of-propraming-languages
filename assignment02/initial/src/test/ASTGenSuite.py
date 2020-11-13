@@ -1,7 +1,7 @@
 import unittest
 from TestUtils import TestAST
-# from AST import *
-from AST_copy import *
+from AST import *
+# from AST_copy import *
 
 
 class ASTGenSuite(unittest.TestCase):

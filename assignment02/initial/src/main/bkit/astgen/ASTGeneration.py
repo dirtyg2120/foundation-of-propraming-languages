@@ -1,8 +1,8 @@
 from main.bkit.utils.AST import *
 from BKITVisitor import BKITVisitor
 from BKITParser import BKITParser
-# from AST import *
-from AST_copy import *
+from AST import *
+# from AST_copy import *
 from functools import reduce
 
 
