@@ -29,14 +29,14 @@ program: variable_declaration* func_declaration* EOF;
 
 variable_declaration: VAR COLON variable_list SM;
 variable_list: variable (CM variable)*;
-variable: ID (LB_SQUARE INT RB_SQUARE)* (ASSIGN literals)?;
+variable: ID (LB_SQUARE INT RB_SQUARE)* (ASSIGN exp)?;
 
 func_declaration: FUNCTION COLON ID param_declaration? body;
 param_declaration: PARAMETER COLON param_list;
 param_list: param (CM param)*;
 param: ID (LB_SQUARE INT RB_SQUARE)*;
 
-body: begin_body variable_declaration* stmt* end_body;
+body: begin_body mini_body end_body;
 
 /*========== Statements ==========*/
 stmt:
@@ -54,23 +54,21 @@ stmt:
 statement_assign: ( ID | array_cell_decl) ASSIGN exp SM;
 
 array_cell_decl: (ID | function_call) (LB_SQUARE exp RB_SQUARE)+;
+mini_body: variable_declaration* stmt*;
 
 statement_if: if_then_stmt else_if_stmt* else_stmt? ENDIF DOT;
-if_then_stmt: IF exp THEN then_stmt;
-else_if_stmt: ELSE IF exp THEN then_stmt;
-else_stmt: ELSE then_stmt;
-then_stmt: variable_declaration* stmt*;
+if_then_stmt: IF exp THEN mini_body;
+else_if_stmt: ELSEIF exp THEN mini_body;
+else_stmt: ELSE mini_body;
 
 // statement_if: IF THEN ENDIF DOT;
 
 statement_for:
-	FOR LB_ROUND ID ASSIGN exp CM exp CM exp RB_ROUND DO variable_declaration* stmt* ENDFOR DOT;
+	FOR LB_ROUND ID ASSIGN exp CM exp CM exp RB_ROUND DO mini_body ENDFOR DOT;
 
-statement_while:
-	WHILE exp DO variable_declaration* stmt* ENDWHILE DOT;
+statement_while: WHILE exp DO mini_body ENDWHILE DOT;
 
-statement_do_while:
-	DO variable_declaration* stmt* WHILE exp ENDDO DOT;
+statement_do_while: DO mini_body WHILE exp ENDDO DOT;
 
 statement_break: BREAK SM;
 statement_continue: CONTINUE SM;
@@ -90,11 +88,17 @@ exp3:
 exp4: NOT exp4 | exp5;
 exp5: (SUB_FLOAT | SUB_INT) exp5 | operand;
 
-operand: literals | ID | function_call | LB_ROUND exp RB_ROUND;
+operand: literal | ID | function_call | LB_ROUND exp RB_ROUND;
 
-literals: INT | FLOAT | BOOLEAN | array_literal | STRING;
+literal:
+	INT
+	| FLOAT
+	| BOOLEAN
+	| array_literal
+	| STRING
+	| array_cell_decl;
 
-array_literal: LB_CURLY ( literals (CM literals)*)? RB_CURLY;
+array_literal: LB_CURLY ( exp (CM exp)*)? RB_CURLY;
 
 begin_body: BODY COLON;
 end_body: ENDBODY DOT;
