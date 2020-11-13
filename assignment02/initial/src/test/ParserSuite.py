@@ -17,23 +17,7 @@ class ParserSuite(unittest.TestCase):
 
     def test_tmp(self):
         input = """
-            Function: foo
-                Body:
-                    Var: i = 0;
-                    While (i < 10) Do
-                        Var: j = 0;
-                        writeln(i);
-                        While (j < 10) Do
-                            If (i + j) % 2 != 0 Then
-                                If tmp2[10][i] == 1 Then println("1");
-                                ElseIf tmp2[10][i] == 2 Then println("2");
-                                ElseIf tmp2[10][i] == 3 Then println("3");
-                                EndIf.
-                            EndIf.
-                            j = j + 1;
-                        EndWhile.
-                    EndWhile.
-                EndBody.
+
         """
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 203))
