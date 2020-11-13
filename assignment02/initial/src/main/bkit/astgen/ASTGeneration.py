@@ -109,10 +109,9 @@ class ASTGeneration(BKITVisitor):
 
     def visitStatement_do_while(self, ctx):
         mini_body = ctx.mini_body().accept(self)
-
         sl = (mini_body[0], mini_body[1])
         expr = ctx.exp().accept(self)
-        return While(sl, expr)
+        return Dowhile(sl, expr)
 
     def visitStatement_break(self, ctx):
         return Break()
