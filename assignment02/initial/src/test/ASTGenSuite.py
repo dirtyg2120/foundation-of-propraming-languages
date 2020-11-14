@@ -1,7 +1,7 @@
 import unittest
 from TestUtils import TestAST
-from AST import *
-# from AST_copy import *
+# from AST import *
+from AST_copy import *
 
 
 class ASTGenSuite(unittest.TestCase):
@@ -111,6 +111,25 @@ class ASTGenSuite(unittest.TestCase):
     #     """
     #     expect = Program([VarDecl(Id("i"),[],IntLiteral(0)),VarDecl(Id("x"),[],None),FuncDecl(Id("main"),[],tuple([[VarDecl(Id("x"),[],StringLiteral("This is a string")),VarDecl(Id("y"),[],StringLiteral("")),VarDecl(Id("z"),[],StringLiteral("This \n is \t a '\" string '\""))],[Assign(Id("x"),IntLiteral(100)),Dowhile(tuple([[],[CallStmt(Id("println"),[Id("x")]),Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1)))]]),BinaryOp("<",Id("i"),IntLiteral(10)))]]))])
     #     self.assertTrue(TestAST.checkASTGen(input, expect, 307))
+
+    def test_literal_4(self):
+        """Simple program: int main() {} """
+        input = """
+            Var: i=0, x;
+            Function: main
+                Body:
+                    Var: x = "This is a string", y = "";
+                    Var: z = **comment** "This \\n is \\t a '" string '"";
+                    x = 100;
+                    Do
+                        println(x);
+                        i = i + 1;
+                    While (i < 10) EndDo.
+                EndBody.
+        """
+        expect = Program([VarDecl(Id("i"),[],IntLiteral(0)),VarDecl(Id("x"),[],None),FuncDecl(Id("main"),[],tuple([[VarDecl(Id("x"),[],StringLiteral("This is a string")),VarDecl(Id("y"),[],StringLiteral("")),VarDecl(Id("z"),[],StringLiteral("This \\n is \\t a '\" string '\""))],[Assign(Id("x"),IntLiteral(100)),Dowhile(tuple([[],[CallStmt(Id("println"),[Id("x")]),Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1)))]]),BinaryOp("<",Id("i"),IntLiteral(10)))]]))])
+        self.assertTrue(TestAST.checkASTGen(input,expect,307))
+
 
     def test_random_08(self):
         """Continue statement"""
