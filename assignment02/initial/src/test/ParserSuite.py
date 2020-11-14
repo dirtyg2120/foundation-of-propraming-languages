@@ -17,7 +17,17 @@ class ParserSuite(unittest.TestCase):
 
     def test_tmp(self):
         input = """
-
+            Var: i=0, x;
+            Function: main
+                Body:
+                    Var: x = "This is a string", y = "";
+                    Var: z = **comment** "This \\n is \\t a '" string '"";
+                    x = 100;
+                    Do
+                        println(x);
+                        i = i + 1;
+                    While (i < 10) EndDo.
+                EndBody.
         """
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 203))

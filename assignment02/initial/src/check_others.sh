@@ -13,6 +13,8 @@ for dir in "${dir_lst[@]}"; do
 done
 
 python3 run.py gen
-# python3 run.py test LexerSuite
+echo "=====================================================CHECK LEXER====================================================="
+python3 run.py test LexerSuite
+echo "=====================================================CHECK PARSER====================================================="
 python3 run.py test ParserSuite
 # python3 run.py test ASTGenSuite

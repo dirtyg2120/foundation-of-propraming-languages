@@ -70,11 +70,12 @@ class ASTGenSuite(unittest.TestCase):
             Function: main
             Body:
                 For (i = 0, i < 10, 2) Do
-                    println(i);
+                    x = (0 + 199 - 0xFF * 0XABC \ 0o567 % 0O77) * i;
+                    println(x);
                 EndFor.
             EndBody.
         """
-        expect = Program([FuncDecl(Id("main"),[],tuple([[],[For(Id("i"),IntLiteral(0),BinaryOp("<",Id("i"),IntLiteral(10)),IntLiteral(2),tuple([[],[CallStmt(Id("println"),[Id("i")])]]))]]))])
+        expect = Program([FuncDecl(Id("main"),[],tuple([[],[For(Id("i"),IntLiteral(0),BinaryOp("<",Id("i"),IntLiteral(10)),IntLiteral(2),tuple([[],[Assign(Id("x"),BinaryOp("*",BinaryOp("-",BinaryOp("+",IntLiteral(0),IntLiteral(199)),BinaryOp("%",BinaryOp("\\",BinaryOp("*",IntLiteral(255),IntLiteral(2748)),IntLiteral(375)),IntLiteral(63))),Id("i"))),CallStmt(Id("println"),[Id("x")])]]))]]))])
         self.assertTrue(TestAST.checkASTGen(input, expect, 305))
 
     def test_random_06(self):
@@ -93,21 +94,23 @@ class ASTGenSuite(unittest.TestCase):
         expect = Program([VarDecl(Id("i"),[],IntLiteral(0)),VarDecl(Id("x"),[],None),FuncDecl(Id("main"),[],tuple([[],[Assign(Id("x"),IntLiteral(100)),While(BinaryOp("<",Id("i"),IntLiteral(10)),tuple([[],[CallStmt(Id("println"),[Id("x")]),Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1)))]]))]]))])
         self.assertTrue(TestAST.checkASTGen(input, expect, 306))
 
-    def test_random_07(self):
-        """Do While statement"""
-        input = """
-            Var: i=0, x;
-            Function: main
-                Body:
-                    x = 100;
-                    Do
-                        println(x);
-                        i = i + 1;
-                    While (i < 10) EndDo.
-                EndBody.
-        """
-        expect = Program([VarDecl(Id("i"),[],IntLiteral(0)),VarDecl(Id("x"),[],None),FuncDecl(Id("main"),[],tuple([[],[Assign(Id("x"),IntLiteral(100)),Dowhile(tuple([[],[CallStmt(Id("println"),[Id("x")]),Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1)))]]),BinaryOp("<",Id("i"),IntLiteral(10)))]]))])
-        self.assertTrue(TestAST.checkASTGen(input, expect, 307))
+    # def test_random_07(self):
+    #     """Do While statement"""
+    #     input = """
+    #         Var: i=0, x;
+    #         Function: main
+    #             Body:
+    #                 Var: x = "This is a string", y = "";
+    #                 Var: z = **comment** "This \\n is \\t a '" string '"";
+    #                 x = 100;
+    #                 Do
+    #                     println(x);
+    #                     i = i + 1;
+    #                 While (i < 10) EndDo.
+    #             EndBody.
+    #     """
+    #     expect = Program([VarDecl(Id("i"),[],IntLiteral(0)),VarDecl(Id("x"),[],None),FuncDecl(Id("main"),[],tuple([[VarDecl(Id("x"),[],StringLiteral("This is a string")),VarDecl(Id("y"),[],StringLiteral("")),VarDecl(Id("z"),[],StringLiteral("This \n is \t a '\" string '\""))],[Assign(Id("x"),IntLiteral(100)),Dowhile(tuple([[],[CallStmt(Id("println"),[Id("x")]),Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1)))]]),BinaryOp("<",Id("i"),IntLiteral(10)))]]))])
+    #     self.assertTrue(TestAST.checkASTGen(input, expect, 307))
 
     def test_random_08(self):
         """Continue statement"""
