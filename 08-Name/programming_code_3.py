@@ -18,10 +18,10 @@ class StaticCheck(Visitor):
     def visitFuncDecl(self, ctx: FuncDecl, o: object):
         if len(list(filter(lambda x: x.name == ctx.name, o))):
             raise RedeclaredFunction(ctx.name)
-        lst = []
-        reduce(lambda acc, ele: ele.accept(self, acc), ctx.param, lst)
-        reduce(lambda acc, ele: ele.accept(self, acc), ctx.body, lst)
-        return o + [ctx]
+        o = o + [ctx]
+        lst = reduce(lambda acc, ele: ele.accept(self, acc), ctx.param, [])
+        reduce(lambda environ, decl: decl.accept(self, environ), ctx.body, lst)
+        return o
 
     # def visitProgram(self, ctx: Program, o: object):
     #     o = []
