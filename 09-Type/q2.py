@@ -84,7 +84,7 @@ class StaticCheck(Visitor):
         id_type = ""
         for context in o:
             if context.name == ctx.name:
-                id_type = self.visit(context.typ, o)
+                id_type = self.visit(ctx.typ, o)
                 break
         if id_type == "":
             raise UndeclaredIdentifier(ctx.name)
