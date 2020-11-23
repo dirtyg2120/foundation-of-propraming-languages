@@ -36,126 +36,126 @@ class StaticCheck(Visitor):
         o[ctx.name] = ''
 
     def visitAssign(self, ctx: Assign, o):
-        type2 = self.visit(ctx.rhs, o)
-        type1 = self.visit(ctx.lhs, o)
-        if type2 == '':
+        exp_type = self.visit(ctx.rhs, o)
+        id_type = self.visit(ctx.lhs, o)
+        if exp_type == '':
             raise TypeCannotBeInferred(ctx)
-        if type1 == '':
-            type1 = type2
-            o[ctx.lhs.name] = type1
+        if id_type == '':
+            id_type = exp_type
+            o[ctx.lhs.name] = id_type
         else:
-            if type1 != type2:
+            if id_type != exp_type:
                 raise TypeMismatchInStatement(ctx)
 
     def visitBinOp(self, ctx: BinOp, o):
-        type1 = self.visit(ctx.e1, o)
-        type2 = self.visit(ctx.e2, o)
+        e1_type = self.visit(ctx.e1, o)
+        e2_type = self.visit(ctx.e2, o)
         if ctx.op in ['+', '-', '*', '/']:
             # type inference
-            if type1 == '':
-                type1 = 'int'
-                o[ctx.e1.name] = type1
-            if type2 == '':
-                type2 = 'int'
-                o[ctx.e2.name] = type2
+            if e1_type == '':
+                e1_type = 'int'
+                o[ctx.e1.name] = e1_type
+            if e2_type == '':
+                e2_type = 'int'
+                o[ctx.e2.name] = e2_type
             # type checking
-            if type1 != 'int' or type2 != 'int':
+            if e1_type != 'int' or e2_type != 'int':
                 raise TypeMismatchInExpression(ctx)
             return 'int'
         elif ctx.op in ['+.', '-.', '*.', '/.']:
             # type inference
-            if type1 == '':
-                type1 = 'float'
-                o[ctx.e1.name] = type1
-            if type2 == '':
-                type2 = 'float'
-                o[ctx.e2.name] = type2
+            if e1_type == '':
+                e1_type = 'float'
+                o[ctx.e1.name] = e1_type
+            if e2_type == '':
+                e2_type = 'float'
+                o[ctx.e2.name] = e2_type
             # type checking
-            if type1 != 'float' or type2 != 'float':
+            if e1_type != 'float' or e2_type != 'float':
                 raise TypeMismatchInExpression(ctx)
             return 'float'
         elif ctx.op in ['>', '=']:
             # type inference
-            if type1 == '':
-                type1 = 'int'
-                o[ctx.e1.name] = type1
-            if type2 == '':
-                type2 = 'int'
-                o[ctx.e2.name] = type2
+            if e1_type == '':
+                e1_type = 'int'
+                o[ctx.e1.name] = e1_type
+            if e2_type == '':
+                e2_type = 'int'
+                o[ctx.e2.name] = e2_type
             # type checking
-            if type1 != 'int' or type2 != 'int':
+            if e1_type != 'int' or e2_type != 'int':
                 raise TypeMismatchInExpression(ctx)
             return 'bool'
         elif ctx.op in ['>.', '=.']:
             # type inference
-            if type1 == '':
-                type1 = 'float'
-                o[ctx.e1.name] = type1
-            if type2 == '':
-                type2 = 'float'
-                o[ctx.e2.name] = type2
+            if e1_type == '':
+                e1_type = 'float'
+                o[ctx.e1.name] = e1_type
+            if e2_type == '':
+                e2_type = 'float'
+                o[ctx.e2.name] = e2_type
             # type checking
-            if type1 != 'float' or type2 != 'float':
+            if e1_type != 'float' or e2_type != 'float':
                 raise TypeMismatchInExpression(ctx)
             return 'bool'
         elif ctx.op in ['&&', '||', '>b', '=b']:
             # type inference
-            if type1 == '':
-                type1 = 'bool'
-                o[ctx.e1.name] = type1
-            if type2 == '':
-                type2 = 'bool'
-                o[ctx.e2.name] = type2
+            if e1_type == '':
+                e1_type = 'bool'
+                o[ctx.e1.name] = e1_type
+            if e2_type == '':
+                e2_type = 'bool'
+                o[ctx.e2.name] = e2_type
             # type checking
-            if type1 != 'bool' or type2 != 'bool':
+            if e1_type != 'bool' or e2_type != 'bool':
                 raise TypeMismatchInExpression(ctx)
             return 'bool'
 
     def visitUnOp(self, ctx: UnOp, o):
-        operand_type = self.visit(ctx.e, o)
+        e_type = self.visit(ctx.e, o)
         if ctx.op == '-':
             # type inference
-            if operand_type == '':
-                operand_type = 'int'
-                o[ctx.e.name] = operand_type
+            if e_type == '':
+                e_type = 'int'
+                o[ctx.e.name] = e_type
             # type checking
-            if operand_type != 'int':
+            if e_type != 'int':
                 raise TypeMismatchInExpression(ctx)
             return 'int'
         elif ctx.op == '-.':
             # type inference
-            if operand_type == '':
-                operand_type = 'float'
-                o[ctx.e.name] = operand_type
+            if e_type == '':
+                e_type = 'float'
+                o[ctx.e.name] = e_type
             # type checking
-            if operand_type != 'float':
+            if e_type != 'float':
                 raise TypeMismatchInExpression(ctx)
             return 'float'
         elif ctx.op == 'i2f':
             # type inference
-            if operand_type == '':
-                operand_type = 'int'
-                o[ctx.e.name] = operand_type
+            if e_type == '':
+                e_type = 'int'
+                o[ctx.e.name] = e_type
             # type checking
-            if operand_type != 'int':
+            if e_type != 'int':
                 raise TypeMismatchInExpression(ctx)
             return 'float'
         elif ctx.op == 'floor':
             # type inference
-            if operand_type == '':
-                operand_type = 'float'
-                o[ctx.e.name] = operand_type
+            if e_type == '':
+                e_type = 'float'
+                o[ctx.e.name] = e_type
             # type checking
-            if operand_type != 'float':
+            if e_type != 'float':
                 raise TypeMismatchInExpression(ctx)
             return 'int'
         elif ctx.op == '!':
             # type inference
-            if operand_type == '':
-                operand_type = 'bool'
-                o[ctx.e.name] = operand_type
+            if e_type == '':
+                e_type = 'bool'
+                o[ctx.e.name] = e_type
             # type checking
-            if operand_type != 'bool':
+            if e_type != 'bool':
                 raise TypeMismatchInExpression(ctx)
             return 'bool'
 

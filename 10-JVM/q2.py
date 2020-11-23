@@ -22,7 +22,32 @@ class BoolLit(Exp): #val:bool
 
 class Id(Exp): #name:str
 
-and the Visitor class is declared as follows:
+
+In an assignment statement, the type of lhs must be the same as that
+of rhs, otherwise, the exception TypeMismatchInStatement should be
+raised together with the assignment statement.
+
+
+The type of an Id is inferred from the above constraints in the first
+usage, 
+    If the Id is not in the declarations, exception
+    UndeclaredIdentifier should be raised together with the name
+    of the Id, or
+
+    If the Id cannot be inferred in the first usage, exception
+    TypeCannotBeInferred should be raised together with the
+    assignment statement which contains the type-unresolved identifier.
+
+
+For static referencing environment, this language applies the scope rules of block-structured programming language. When there is a declaration duplication of a name in a scope, exception Redeclared should be raised together with the second declaration.
+If an expression does not conform the type constraints, the StaticCheck will raise exception TypeMismatchInExpression with the expression.
+
+Test:
+Program([VarDecl("x")],[Assign(Id("x"),IntLit(3)),Block([VarDecl("y")],[Assign(Id("x"),Id("y")),Assign(Id("y"),BoolLit(True))])])
+
+Result:
+Type Mismatch In Statement: Assign(Id("y"),BoolLit(True))
+
  """
 class StaticCheck(Visitor):
 

@@ -22,7 +22,33 @@ class BoolLit(Exp): #val:bool
 
 class Id(Exp): #name:str
 
-and the Visitor class is declared as follows:
+In an Assign, the type of lhs must be the same as that of rhs, otherwise, the exception TypeMismatchInStatement should be raised together with the Assign
+
+The type of an Id is inferred from the above constraints in the
+first usage, 
+    If the Id is not in the declarations, exception UndeclaredIdentifier
+    should be raised together with the name of the Id, or
+
+    If the Id cannot be inferred in the first usage, exception
+    TypeCannotBeInferred should be raised together with the statement
+
+For static referencing environment, this language applies 
+he scope rules of block-structured programming language where
+a function is a block. When there is a declaration duplication of
+a name in a scope, exception Redeclared should be raised together
+with the second declaration.
+
+In a call statement, the argument type must be the same as
+the parameter type. If there is no function declaration in
+the static referencing environment, exception UndeclaredIdentifier
+should be raised together with the function call name. If the numbers
+of parameters and arguments are not the same or at least one argument
+type is not the same as the type of the corresponding parameter,
+exception TypeMismatchInStatement should be raise with the call
+statement. If there is at least one parameter type cannot be resolved,
+exception TypeCannotBeInferred should be raised together with
+the call statement.
+
  """
 class StaticCheck(Visitor):
 
