@@ -23,17 +23,12 @@ class StaticCheck(Visitor):
     def visitBinOp(self, ctx: BinOp, o):
         type1 = self.visit(ctx.e1, o)
         type2 = self.visit(ctx.e2, o)
-        if ctx.op in ['+', '-', '*']:
-            if type1 == 'bool' or type2 == 'bool':
+        if ctx.op in ['+', '-', '*', '/']:
+            if 'bool' in [type1,type2]:
                 raise TypeMismatchInExpression(ctx)
-            if type1 == 'float' or type2 == 'float':
+            if 'float' in [type1,type2] or ctx.op == '/':
                 return 'float'
-            else:
-                return 'int'
-        elif ctx.op == '/':
-            if type1 == 'bool' or type2 == 'bool':
-                raise TypeMismatchInExpression(ctx)
-            return 'float'
+            return 'int'
         elif ctx.op in ['&&', '||']:
             if type1 != 'bool' or type2 != 'bool':
                 raise TypeMismatchInExpression(ctx)
@@ -45,14 +40,11 @@ class StaticCheck(Visitor):
 
     def visitUnOp(self, ctx: UnOp, o):
         operand_type = self.visit(ctx.e, o)
-        if ctx.op == '-':
-            if operand_type == 'bool':
-                raise TypeMismatchInExpression(ctx)
-            return operand_type
-        elif ctx.op == '!':
-            if operand_type != 'bool':
-                raise TypeMismatchInExpression(ctx)
-            return 'bool'
+        if ctx.op == '-' and operand_type == 'bool':
+            raise TypeMismatchInExpression(ctx)
+        elif ctx.op == '!' and operand_type != 'bool':
+            raise TypeMismatchInExpression(ctx)
+        return operand_type
 
     def visitIntLit(self, ctx: IntLit, o):
         return "int"
