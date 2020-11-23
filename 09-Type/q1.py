@@ -20,37 +20,39 @@ the innermost sub-expression that contains type mismatch.
 
 
 class StaticCheck(Visitor):
-
     def visitBinOp(self, ctx: BinOp, o):
         type1 = self.visit(ctx.e1, o)
         type2 = self.visit(ctx.e2, o)
-
-        op = ctx.op
-        if op in ('+', '-', '*', '/'):
-            if 'bool' in (type1, type2):
+        if ctx.op in ['+', '-', '*']:
+            if type1 == 'bool' or type2 == 'bool':
                 raise TypeMismatchInExpression(ctx)
-            if op == '/' or 'float' in (type1, type2):
+            if type1 == 'float' or type2 == 'float':
                 return 'float'
-            return 'int'
-        elif op in ('&&', '||'):
-            if 'bool' not in (type1, type2):
+            else:
+                return 'int'
+        elif ctx.op == '/':
+            if type1 == 'bool' or type2 == 'bool':
+                raise TypeMismatchInExpression(ctx)
+            return 'float'
+        elif ctx.op in ['&&', '||']:
+            if type1 != 'bool' or type2 != 'bool':
                 raise TypeMismatchInExpression(ctx)
             return 'bool'
-        elif op in ('<', '>', '==', '!='):
+        elif ctx.op in ['<', '>', '==', '!=']:
             if type1 != type2:
                 raise TypeMismatchInExpression(ctx)
             return 'bool'
-        return
 
     def visitUnOp(self, ctx: UnOp, o):
-        type0 = self.visit(ctx.e, o)
-        op = ctx.op
-
-        if op == '!' and type0 != 'bool':
-            raise TypeMismatchInExpression(ctx)
-        elif op =='-' and type0 not in ('int','float'):
-            raise TypeMismatchInExpression(ctx)
-        return type0
+        operand_type = self.visit(ctx.e, o)
+        if ctx.op == '-':
+            if operand_type == 'bool':
+                raise TypeMismatchInExpression(ctx)
+            return operand_type
+        elif ctx.op == '!':
+            if operand_type != 'bool':
+                raise TypeMismatchInExpression(ctx)
+            return 'bool'
 
     def visitIntLit(self, ctx: IntLit, o):
         return "int"

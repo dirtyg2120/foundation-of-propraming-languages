@@ -18,24 +18,50 @@ class BoolLit(Exp): #val:bool
 
 class Id(Exp): #name:str
 
-and the Visitor class is declared as follows: """
+
+Type Mismatch In Expression: BinOp("-",Id("x"),FloatLit(2.1))
+Type Mismatch In Statement: Assign(Id("z"),Id("x")) -> 2 ben khong cung kieu
+Type Cannot Be Inferred: Assign(Id("x"),Id("y"))
+
+"""
+
+
+from functools import reduce
+
 
 class StaticCheck(Visitor):
+    def visitProgram(self, ctx: Program, o: object):
+        env = reduce(lambda x, y: y.accept(self, x) + x, ctx.decl, o)
 
-    def visitProgram(self,ctx:Program,o):pass
+    def visitVarDecl(self, ctx: VarDecl, o: object):
+        if ctx.name in o:
+            raise RedeclaredVariable(ctx.name)
+        return [ctx.name]
 
-    def visitVarDecl(self,ctx:VarDecl,o): pass
+    def visitConstDecl(self, ctx: ConstDecl, o: object):
+        if ctx.name in o:
+            raise RedeclaredConstant(ctx.name)
+        return [ctx.name]
 
-    def visitAssign(self,ctx:Assign,o): pass
+    def visitFuncDecl(self, ctx: FuncDecl, o: object):
+        if ctx.name in o:
+            raise RedeclaredFunction(ctx.name)
 
-    def visitBinOp(self,ctx:BinOp,o): pass
+        env = reduce(lambda x, y: y.accept(self, x) + x, ctx.param, [])
+        env = reduce(lambda x, y: y.accept(self, x) +
+                     x, ctx.body[0], env+[ctx.name])
 
-    def visitUnOp(self,ctx:UnOp,o):pass
+        scope = env + o
+        exp = reduce(lambda x, y: y.accept(self, scope), ctx.body[1], scope)
 
-    def visitIntLit(self,ctx:IntLit,o): pass 
+        return [ctx.name]
 
-    def visitFloatLit(self,ctx,o): pass
+    def visitIntType(self, ctx: IntType, o: object): pass
 
-    def visitBoolLit(self,ctx,o): pass
+    def visitFloatType(self, ctx: FloatType, o: object): pass
 
-    def visitId(self,ctx,o): pass
+    def visitIntLit(self, ctx: IntLit, o: object): pass
+
+    def visitId(self, ctx: Id, o: object):
+        if ctx.name not in o:
+            raise UndeclaredIdentifier(ctx.name)
