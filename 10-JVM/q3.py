@@ -50,22 +50,80 @@ exception TypeCannotBeInferred should be raised together with
 the call statement.
 
  """
+
+
 class StaticCheck(Visitor):
 
-    def visitProgram(self,ctx:Program,o):pass
+    def visitProgram(self, ctx: Program, o):
+        o = {}
+        for decl in ctx.decl:
+            self.visit(decl, o)
+        for stmt in ctx.stmts:
+            self.visit(stmt, o)
 
-    def visitVarDecl(self,ctx:VarDecl,o): pass
+    def visitVarDecl(self, ctx: VarDecl, o):
+        o[ctx.name] = ''
 
-    def visitFuncDecl(self,ctx:FuncDecl,o): pass
+    def visitFuncDecl(self, ctx: FuncDecl, o):
+        # name:str,param:List[VarDecl],local:List[Decl],stmts:List[Stmt]
+        if ctx.name in o:
+            raise Redeclared(ctx)
 
-    def visitCallStmt(self,ctx:CallStmt,o):pass
+        param_list = {}
+        for param in ctx.param:
+            self.visit(param, param_list)
 
-    def visitAssign(self,ctx:Assign,o): pass
+        local_list = param_list.copy()
+        local_list[ctx.name] = param_list.copy()
+        for local in ctx.local:
+            self.visit(local, local_list)
 
-    def visitIntLit(self,ctx:IntLit,o): pass 
+        total_envir = o.copy()
+        for name in local_list:
+            total_envir[name] = local_list[name]
+        for stmt in ctx.stmts:
+            self.visit(stmt, total_envir)
 
-    def visitFloatLit(self,ctx,o): pass
+        for name in o:
+            if name not in local_list:
+                o[name] = total_envir[name]
+        o[ctx.name] = total_envir[ctx.name]    
 
-    def visitBoolLit(self,ctx,o): pass
+    def visitCallStmt(self, ctx: CallStmt, o):
+        # name:str,args:List[Exp]
+        if ctx.name not in o:
+            raise UndeclaredIdentifier(ctx.name)
+        
+        if type(o[ctx.name]) is not dict:
+            raise UndeclaredIdentifier(ctx.name)
 
-    def visitId(self,ctx,o): pass
+        if len(o[ctx.name]) != len(ctx.args):
+            raise TypeMismatchInStatement(ctx)
+
+    def visitAssign(self, ctx: Assign, o):
+        exp_type = self.visit(ctx.rhs, o)
+        id_type = self.visit(ctx.lhs, o)
+        if exp_type == '' and id_type == '':
+            raise TypeCannotBeInferred(ctx)
+        elif exp_type == '' and id_type != '':
+            exp_type = id_type
+            o[ctx.rhs.name] = exp_type
+        elif exp_type != '' and id_type == '':
+            id_type = exp_type
+            o[ctx.lhs.name] = id_type
+        elif id_type != exp_type:
+            raise TypeMismatchInStatement(ctx)
+
+    def visitIntLit(self, ctx: IntLit, o):
+        return 'int'
+
+    def visitFloatLit(self, ctx, o):
+        return 'float'
+
+    def visitBoolLit(self, ctx, o):
+        return 'bool'
+
+    def visitId(self, ctx, o):
+        if ctx.name not in o:
+            raise UndeclaredIdentifier(ctx.name)
+        return o[ctx.name]
