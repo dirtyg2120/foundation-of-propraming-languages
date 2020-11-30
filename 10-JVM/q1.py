@@ -38,14 +38,16 @@ class StaticCheck(Visitor):
     def visitAssign(self, ctx: Assign, o):
         exp_type = self.visit(ctx.rhs, o)
         id_type = self.visit(ctx.lhs, o)
-        if exp_type == '':
+        if exp_type == '' and id_type == '':
             raise TypeCannotBeInferred(ctx)
-        if id_type == '':
+        elif exp_type == '' and id_type != '':
+            exp_type = id_type
+            o[ctx.rhs.name] = exp_type
+        elif exp_type != '' and id_type == '':
             id_type = exp_type
             o[ctx.lhs.name] = id_type
-        else:
-            if id_type != exp_type:
-                raise TypeMismatchInStatement(ctx)
+        elif id_type != exp_type:
+            raise TypeMismatchInStatement(ctx)
 
     def visitBinOp(self, ctx: BinOp, o):
         e1_type = self.visit(ctx.e1, o)
