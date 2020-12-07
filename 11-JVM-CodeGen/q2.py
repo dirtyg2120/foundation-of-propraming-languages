@@ -1,2 +1,2 @@
-   def visitFloatLiteral(self, ctx, o):
-      return (self.emit.emitPUSHFCONST(ctx.value, o.frame), FloatType())
+def visitFloatLiteral(self, ctx, o):
+    return (self.emit.emitPUSHFCONST(float(ctx.value), o.frame), FloatType())
