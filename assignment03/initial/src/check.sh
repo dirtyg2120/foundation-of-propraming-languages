@@ -16,4 +16,4 @@ python3 run.py gen
 # python3 run.py test LexerSuite
 # python3 run.py test ParserSuite
 # python3 run.py test ASTGenSuite
-python3 run.py CheckSuite
+python3 run.py test CheckSuite
