@@ -23,5 +23,5 @@ class ASTGenSuite(unittest.TestCase):
     #             Assign(Id("x"),IntLiteral(10)),
     #             CallStmt(Id("printLn"),[Id("x")])]))]))
     #     self.assertTrue(TestAST.checkASTGen(input,expect,301))
-Tuple (,)=> record (Pascal), struct [0]  [1] 
+# Tuple (,)=> record (Pascal), struct [0]  [1] 
    
