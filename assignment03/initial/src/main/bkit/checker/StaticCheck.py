@@ -121,7 +121,13 @@ class StaticChecker(BaseVisitor):
         for e in scope:
             if e.name == _name:
                 return e
-        return None
+        return
+
+    @staticmethod
+    def getSymbolIndex(_name, scope):
+        for i in range(len(scope)):
+            if scope[i].name == _name:
+                return i
 
     @staticmethod
     def checkRedeclared(symbol, scope):
@@ -171,7 +177,6 @@ class StaticChecker(BaseVisitor):
         return _symbol.mtype
 
     # decl:List[Decl]
-
     def visitProgram(self, ast, c):
         # Need to check entry point before visiting the children
         for e in ast.decl:
@@ -304,15 +309,37 @@ class StaticChecker(BaseVisitor):
 
     # method:Id
     # param:List[Expr]
-
     def visitCallExpr(self, ast, c):
         StaticChecker.checkUndeclared(ast.method.name, c, Function())
-        currentCallExpr = StaticChecker.getSymbol(ast.method.name, c)
+        _callExprType = self.visit(ast.method, c)
+        if not isinstance(_callExprType.restype, VoidType) or len(ast.param) != len(_callExprType.intype):
+            raise TypeMismatchInExpression(ast)
+        
+        _callExpr = StaticChecker.getSymbol(ast.method.name, c)
+        argsTypeList = [self.visit(_param, c) for _param in ast.param]
 
-        return currentCallExpr.mtype.restype
+        for i in range(len(ast.param)):
+            _argType = argsTypeList[i]
+            _callExprIntype = _callExpr.mtype.intype[i]
+            if type(_argType) is Unknown:
+                if type(_callExprIntype) is Unknown:
+                    return TypeCannotBeInferred()
+                else:
+                    argIndex = StaticChecker.getSymbolIndex(
+                        ast.param[i].name, c)
+                    c[argIndex].mtype = _callExprIntype
+                    argsTypeList[i] = _callExprIntype
+            else:
+                if type(_callExprIntype) is Unknown:
+                    _callExprIndex = StaticChecker.getSymbolIndex(
+                        _callExpr.name, c)
+                    c[_callExprIndex].mtype.intype[i] = _argType
+                    _callExpr.mtype.intype[i] = _argType
+                elif type(_argType) != type(_callExprIntype):
+                    raise TypeMismatchInExpression(ast)
+        return _callExpr.mtype.restype
 
     # value:int
-
     def visitIntLiteral(self, ast, c):
         return IntType()
 
@@ -358,10 +385,18 @@ class StaticChecker(BaseVisitor):
     # expr3:Expr
     # loop: Tuple[List[VarDecl],List[Stmt]]
     def visitFor(self, ast, c):
+        _idx1 = Symbol(ast.idx1.name, Unknown(), Variable())
+        c.append(_idx1)
+        self.visit(ast.idx1, c)
         expr1Type = self.visit(ast.expr1, c)
         expr2Type = self.visit(ast.expr2, c)
         expr3Type = self.visit(ast.expr3, c)
-        pass
+
+        if not isinstance(expr1Type, IntType) or not isinstance(expr3Type, IntType) or not isinstance(expr2Type, BoolType):
+            raise TypeMismatchInStatement(ast)
+
+        [self.visit(_varDecl, c) for _varDecl in ast.loop[0]]
+        [self.visit(_stmt, c) for _stmt in ast.loop[1]]
 
     def visitBreak(self, ast, c):
         pass
@@ -376,19 +411,48 @@ class StaticChecker(BaseVisitor):
     # sl:Tuple[List[VarDecl],List[Stmt]]
     # exp: Expr
     def visitDowhile(self, ast, c):
-        pass
+        [self.visit(_varDecl, c) for _varDecl in ast.sl[0]]
+        [self.visit(_stmt, c) for _stmt in ast.sl[1]]
+        expType = self.visit(ast.exp, c)
+        if not isinstance(expType, BoolType):
+            raise TypeMismatchInStatement(ast)
 
     # exp: Expr
     # sl:Tuple[List[VarDecl],List[Stmt]]
     def visitWhile(self, ast, c):
-        pass
-
+        expType = self.visit(ast.exp, c)
+        if not isinstance(expType, BoolType):
+            raise TypeMismatchInStatement(ast)
+        [self.visit(_varDecl, c) for _varDecl in ast.sl[0]]
+        [self.visit(_stmt, c) for _stmt in ast.sl[1]]
     # method:Id
     # param:List[Expr]
+
     def visitCallStmt(self, ast, c):
         StaticChecker.checkUndeclared(ast.method.name, c, Function())
-        currentCallStmt = StaticChecker.getSymbol(ast.method.name, c)
         callStmtType = self.visit(ast.method, c)
-
-        if len(ast.param) != len(callStmtType.intype):
+        if not isinstance(callStmtType.restype, VoidType) or len(ast.param) != len(callStmtType.intype):
             raise TypeMismatchInStatement(ast)
+
+        _callStmt = StaticChecker.getSymbol(ast.method.name, c)
+        argsTypeList = [self.visit(_param, c) for _param in ast.param]
+
+        for i in range(len(ast.argsTypeList)):
+            _argType = argsTypeList[i]
+            _callExprIntype = _callStmt.mtype.intype[i]
+            if type(_argType) is Unknown:
+                if type(_callExprIntype) is Unknown:
+                    return TypeCannotBeInferred()
+                else:
+                    argIndex = StaticChecker.getSymbolIndex(
+                        ast.param[i].name, c)
+                    c[argIndex].mtype = _callExprIntype
+                    argsTypeList[i] = _callExprIntype
+            else:
+                if type(_callExprIntype) is Unknown:
+                    _callExprIndex = StaticChecker.getSymbolIndex(
+                        _callStmt.name, c)
+                    c[_callExprIndex].mtype.intype[i] = _argType
+                    _callStmt.mtype.intype[i] = _argType
+                elif type(_argType) != type(_callExprIntype):
+                    raise TypeMismatchInExpression(ast)
