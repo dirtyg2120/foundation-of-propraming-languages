@@ -92,58 +92,41 @@ class StaticChecker(BaseVisitor):
     @staticmethod
     def getDictionary():
         typeDict = {}
-        typeDict.update({'+': {'inType': IntType(), 'outType': IntType()}},
-                        {'-': {'inType': IntType(), 'outType': IntType()}},
-                        {'*': {'inType': IntType(), 'outType': IntType()}},
-                        {'/': {'inType': IntType(), 'outType': IntType()}})
-        typeDict.update({'+.': {'inType': FloatType(), 'outType': FloatType()}},
-                        {'-.': {'inType': FloatType(), 'outType': FloatType()}},
-                        {'*.': {'inType': FloatType(), 'outType': FloatType()}},
-                        {'/.': {'inType': FloatType(), 'outType': FloatType()}})
-        typeDict.update({'&&': {'inType': BoolType(), 'outType': BoolType()}},
-                        {'||': {'inType': BoolType(), 'outType': BoolType()}},
-                        {'!': {'inType': BoolType(), 'outType': BoolType()}})
-        typeDict.update({'>': {'inType': IntType(), 'outType': BoolType()}},
-                        {'<': {'inType': IntType(), 'outType': BoolType()}},
-                        {'>=': {'inType': IntType(), 'outType': BoolType()}},
-                        {'<=': {'inType': IntType(), 'outType': BoolType()}},
-                        {'==': {'inType': IntType(), 'outType': BoolType()}},
-                        {'!=': {'inType': IntType(), 'outType': BoolType()}})
-        typeDict.update({'>.': {'inType': FloatType(), 'outType': BoolType()}},
-                        {'<.': {'inType': FloatType(), 'outType': BoolType()}},
-                        {'>=.': {'inType': FloatType(), 'outType': BoolType()}},
-                        {'<=.': {'inType': FloatType(), 'outType': BoolType()}},
-                        {'=/=': {'inType': FloatType(), 'outType': BoolType()}})
+        typeDict = {op: {'inType': IntType(), 'outType': IntType()}
+                    for op in ['+', '-', '*', '-']}
+        typeDict.update({op: {'inType': FloatType(), 'outType': FloatType()}
+                         for op in ['+.', '-.', '*.', '/.']})
+        typeDict.update({op: {'inType': BoolType(), 'outType': BoolType()}
+                         for op in ['&&', '||', '!']})
+        typeDict.update({op: {'inType': IntType(), 'outType': BoolType()}
+                         for op in ['>', '<', '>=', '<=', '==', '!=']})
+        typeDict.update({op: {'inType': FloatType(), 'outType': BoolType()}
+                         for op in ['>.', '<.', '>=.', '<=.', '=/=']})
         return typeDict
 
-    @staticmethod
-    def getSymbol(_name, scope):
+    def getSymbol(self, _name, scope):
         for e in scope:
             if e.name == _name:
                 return e
         return
 
-    @staticmethod
-    def getSymbolIndex(_name, scope):
+    def getSymbolIndex(self, _name, scope):
         for i in range(len(scope)):
             if scope[i].name == _name:
                 return i
 
-    @staticmethod
-    def checkRedeclared(symbol, scope):
+    def checkRedeclared(self, symbol, scope):
         for e in scope:
             if e.name == symbol.name:
                 raise Redeclared(symbol.kind, symbol.name)
 
-    @staticmethod
-    def checkUndeclared(_name, scope, _kind=Identifier()):
+    def checkUndeclared(self, _name, scope, _kind=Identifier()):
         for e in scope:
             if e.name == _name:
                 return
         raise Undeclared(_kind, _name)
 
-    @staticmethod
-    def checkEntryPoint(globalScope):
+    def checkEntryPoint(self, globalScope):
         for e in globalScope:
             if isinstance(e.kind, Function) and e.name == "main":
                 return
@@ -152,15 +135,21 @@ class StaticChecker(BaseVisitor):
     def check(self):
         return self.visit(self.ast, self.global_envi)
 
-    @staticmethod
-    def isNameInScope(_name, list):
+    def isNameInScope(self, _name, list):
         for e in list:
             if _name == e.name:
                 return True
         return False
 
-    @staticmethod
-    def updateSymbolType(_name, scope, _type):
+    def directInfer(self, e, _type, scope):
+        if isinstance(e, Id):
+            self.getSymbol(e.name, scope).mtype = _type
+        elif isinstance(e, CallExpr):
+            self.getSymbol(e.method.name, scope).mtype = _type
+        elif isinstance(e, ArrayCell):
+            pass
+
+    def updateSymbolType(self, _name, scope, _type):
         for e in scope:
             if _name == e.name:
                 if isinstance(e.mtype, Type):
@@ -172,8 +161,8 @@ class StaticChecker(BaseVisitor):
 
     # name: str
     def visitId(self, ast, c):
-        StaticChecker.checkUndeclared(ast.name, c, Variable())
-        _symbol = StaticChecker.getSymbol(ast.name, c)
+        self.checkUndeclared(ast.name, c, Variable())
+        _symbol = self.getSymbol(ast.name, c)
         return _symbol.mtype
 
     # decl:List[Decl]
@@ -182,15 +171,15 @@ class StaticChecker(BaseVisitor):
         for e in ast.decl:
             if isinstance(e, VarDecl):
                 _var = Symbol(e.variable.name, Unknown(), Variable())
-                StaticChecker.checkRedeclared(_var, c)
+                self.checkRedeclared(_var, c)
                 c.append(_var)
             elif isinstance(e, FuncDecl):
                 _paramList = []
                 _func = Symbol(e.name.name, MType(
                     _paramList, Unknown()), Function())
-                StaticChecker.checkRedeclared(_func, c)
+                self.checkRedeclared(_func, c)
                 c.append(_func)
-        StaticChecker.checkEntryPoint(c)
+        self.checkEntryPoint(c)
         [self.visit(x, c) for x in ast.decl]
 
     # variable : Id
@@ -219,14 +208,14 @@ class StaticChecker(BaseVisitor):
         paramList = []
         for currentParam in ast.param:
             _param = Symbol(currentParam.variable.name, Unknown(), Parameter())
-            StaticChecker.checkRedeclared(_param, paramList)
+            self.checkRedeclared(_param, paramList)
             paramList.append(_param)
             self.visit(currentParam, c)
 
         varList = paramList.copy()
         for currentVarDecl in ast.body[0]:
             _var = Symbol(currentVarDecl.variable.name, Unknown(), Variable())
-            StaticChecker.checkRedeclared(_var, varList)
+            self.checkRedeclared(_var, varList)
             varList.append(_var)
             self.visit(currentVarDecl, c)
 
@@ -234,17 +223,16 @@ class StaticChecker(BaseVisitor):
         localScope = varList.copy()
         localScopeHavingGlobalOnly = []  # Make it faster to update global symbol later
         for symbolGlobal in c:
-            if not StaticChecker.isNameInScope(symbolGlobal.name, localScope):
+            if not self.isNameInScope(symbolGlobal.name, localScope):
                 localScope.append(symbolGlobal)
                 localScopeHavingGlobalOnly.append(symbolGlobal)
 
-        for _stmt in ast.body[1]:
-            self.visit(_stmt, localScope)
+        [self.visit(_stmt, localScope) for _stmt in ast.body[1]]
 
         #  Update type of global symbol
         for symbolGlobal in c:
-            if StaticChecker.isNameInScope(symbolGlobal.name, localScopeHavingGlobalOnly) and isinstance(symbolGlobal.mtype, Unknown):
-                symbolLocal = StaticChecker.getSymbol(
+            if self.isNameInScope(symbolGlobal.name, localScopeHavingGlobalOnly) and isinstance(symbolGlobal.mtype, Unknown):
+                symbolLocal = self.getSymbol(
                     symbolGlobal.name, localScope)
                 symbolGlobal.mtype = symbolLocal.mtype
 
@@ -260,7 +248,7 @@ class StaticChecker(BaseVisitor):
         _op = ast.op
         lhsType = self.visit(ast.left, c)
         rhsType = self.visit(ast.right, c)
-        typeDict = StaticChecker.getDictionary()
+        typeDict = self.getDictionary()
 
         if isinstance(lhsType, Unknown):
             if isinstance(ast.left, Id):
@@ -286,6 +274,9 @@ class StaticChecker(BaseVisitor):
             elif isinstance(ast.left, ArrayCell):
                 pass
 
+        if lhsType != typeDict[ast.op]['inType'] or rhsType != typeDict[ast.op]['inType']:
+            raise TypeMismatchInExpression(ast)
+
         return typeDict[_op]['outType']
 
     # op:str
@@ -293,7 +284,7 @@ class StaticChecker(BaseVisitor):
     def visitUnaryOp(self, ast, c,):
         _op = ast.op
         bodyType = self.visit(ast.body, c)
-        typeDict = StaticChecker.getDictionary()
+        typeDict = self.getDictionary()
         if isinstance(bodyType, Unknown):
             if isinstance(ast.body, Id):
                 bodyType = typeDict[_op]['inType']
@@ -305,17 +296,21 @@ class StaticChecker(BaseVisitor):
                     ast.body.method.name, c, typeDict[_op]['inType'])
             elif isinstance(ast.left, ArrayCell):
                 pass
+
+        if bodyType != typeDict[ast.op]['inType']:
+            raise TypeMismatchInExpression(ast)
+
         return typeDict[_op]['outType']
 
     # method:Id
     # param:List[Expr]
     def visitCallExpr(self, ast, c):
-        StaticChecker.checkUndeclared(ast.method.name, c, Function())
+        self.checkUndeclared(ast.method.name, c, Function())
         _callExprType = self.visit(ast.method, c)
         if not isinstance(_callExprType.restype, VoidType) or len(ast.param) != len(_callExprType.intype):
             raise TypeMismatchInExpression(ast)
-        
-        _callExpr = StaticChecker.getSymbol(ast.method.name, c)
+
+        _callExpr = self.getSymbol(ast.method.name, c)
         argsTypeList = [self.visit(_param, c) for _param in ast.param]
 
         for i in range(len(ast.param)):
@@ -325,13 +320,13 @@ class StaticChecker(BaseVisitor):
                 if type(_callExprIntype) is Unknown:
                     return TypeCannotBeInferred()
                 else:
-                    argIndex = StaticChecker.getSymbolIndex(
+                    argIndex = self.getSymbolIndex(
                         ast.param[i].name, c)
                     c[argIndex].mtype = _callExprIntype
                     argsTypeList[i] = _callExprIntype
             else:
                 if type(_callExprIntype) is Unknown:
-                    _callExprIndex = StaticChecker.getSymbolIndex(
+                    _callExprIndex = self.getSymbolIndex(
                         _callExpr.name, c)
                     c[_callExprIndex].mtype.intype[i] = _argType
                     _callExpr.mtype.intype[i] = _argType
@@ -368,22 +363,73 @@ class StaticChecker(BaseVisitor):
     def visitAssign(self, ast, c):
         lhsType = self.visit(ast.lhs, c)
         rhsType = self.visit(ast.rhs, c)
+        if isinstance(lhsType, VoidType):
+            raise TypeMismatchInStatement(ast)
 
-        if not isinstance(rhsType, Unknown) and isinstance(lhsType, Unknown):
-            lhsType = rhsType
-        elif isinstance(rhsType, Unknown) and not isinstance(lhsType, Unknown):
-            rhsType = lhsType
+        resultType = Unknown
+        if isinstance(lhsType, Unknown) and isinstance(rhsType, Unknown):
+            raise TypeCannotBeInferred(ast)
+        elif isinstance(lhsType, Unknown) and not isinstance(rhsType, Unknown):
+            resultType = rhsType
+        elif not isinstance(lhsType, Unknown) and isinstance(rhsType, Unknown):
+            resultType = lhsType
+        elif type(lhsType) != type(rhsType):
+            raise TypeMismatchInExpression(ast)
+
+        self.directInfer(ast.lhs, resultType, c)
+        self.directInfer(ast.rhs, resultType, c)
+
+        return resultType
 
     # ifthenStmt:List[Tuple[Expr,List[VarDecl],List[Stmt]]]
     # elseStmt:Tuple[List[VarDecl],List[Stmt]] # for Else branch, empty list if no Else
     def visitIf(self, ast, c):
-        pass
+        # visiting if, and elseIf
+        for i in range(len(ast.ifthenStmt)):
+            expType = self.visit(ast.ifthenStmt[i][0], c)
+            if not isinstance(expType, BoolType):
+                raise TypeMismatchInStatement(ast)
+
+            varList = []
+            for currentVarDecl in ast.ifthenStmt[i][1]:
+                _var = Symbol(currentVarDecl.variable.name,
+                              Unknown(), Variable())
+                self.checkRedeclared(_var, varList)
+                varList.append(_var)
+                self.visit(currentVarDecl, c)
+
+            localScope = varList.copy()
+            localScopeHavingGlobalOnly = []  # Make it faster to update global symbol later
+            for symbolGlobal in c:
+                if not self.isNameInScope(symbolGlobal.name, localScope):
+                    localScope.append(symbolGlobal)
+                    localScopeHavingGlobalOnly.append(symbolGlobal)
+
+            [self.visit(_stmt, localScope) for _stmt in ast.ifthenStmt[i][2]]
+
+        # visiting else
+        varList = []
+        for currentVarDecl in ast.elseStmt[0]:
+            _var = Symbol(currentVarDecl.variable.name, Unknown(), Variable())
+            self.checkRedeclared(_var, varList)
+            varList.append(_var)
+            self.visit(currentVarDecl, c)
+
+        localScope = varList.copy()
+        localScopeHavingGlobalOnly = []  # Make it faster to update global symbol later
+        for symbolGlobal in c:
+            if not self.isNameInScope(symbolGlobal.name, localScope):
+                localScope.append(symbolGlobal)
+                localScopeHavingGlobalOnly.append(symbolGlobal)
+
+        [self.visit(_stmt, localScope) for _stmt in ast.elseStmt[1]]
 
     # idx1: Id
     # expr1:Expr
     # expr2:Expr
     # expr3:Expr
     # loop: Tuple[List[VarDecl],List[Stmt]]
+
     def visitFor(self, ast, c):
         _idx1 = Symbol(ast.idx1.name, Unknown(), Variable())
         c.append(_idx1)
@@ -395,8 +441,21 @@ class StaticChecker(BaseVisitor):
         if not isinstance(expr1Type, IntType) or not isinstance(expr3Type, IntType) or not isinstance(expr2Type, BoolType):
             raise TypeMismatchInStatement(ast)
 
-        [self.visit(_varDecl, c) for _varDecl in ast.loop[0]]
-        [self.visit(_stmt, c) for _stmt in ast.loop[1]]
+        varList = []
+        for currentVarDecl in ast.loop[0]:
+            _var = Symbol(currentVarDecl.variable.name, Unknown(), Variable())
+            self.checkRedeclared(_var, varList)
+            varList.append(_var)
+            self.visit(currentVarDecl, c)
+
+        localScope = varList.copy()
+        localScopeHavingGlobalOnly = []  # Make it faster to update global symbol later
+        for symbolGlobal in c:
+            if not self.isNameInScope(symbolGlobal.name, localScope):
+                localScope.append(symbolGlobal)
+                localScopeHavingGlobalOnly.append(symbolGlobal)
+
+        [self.visit(_stmt, localScope) for _stmt in ast.loop[1]]
 
     def visitBreak(self, ast, c):
         pass
@@ -406,14 +465,29 @@ class StaticChecker(BaseVisitor):
 
     # expr:Expr # None if no expression
     def visitReturn(self, ast, c):
+        expType = self.visit(ast.expr, c)
         pass
 
     # sl:Tuple[List[VarDecl],List[Stmt]]
     # exp: Expr
     def visitDowhile(self, ast, c):
-        [self.visit(_varDecl, c) for _varDecl in ast.sl[0]]
-        [self.visit(_stmt, c) for _stmt in ast.sl[1]]
-        expType = self.visit(ast.exp, c)
+        varList = []
+        for currentVarDecl in ast.sl[0]:
+            _var = Symbol(currentVarDecl.variable.name, Unknown(), Variable())
+            self.checkRedeclared(_var, varList)
+            varList.append(_var)
+            self.visit(currentVarDecl, c)
+
+        localScope = varList.copy()
+        localScopeHavingGlobalOnly = []  # Make it faster to update global symbol later
+        for symbolGlobal in c:
+            if not self.isNameInScope(symbolGlobal.name, localScope):
+                localScope.append(symbolGlobal)
+                localScopeHavingGlobalOnly.append(symbolGlobal)
+
+        [self.visit(_stmt, localScope) for _stmt in ast.sl[1]]
+
+        expType = self.visit(ast.exp, localScope)
         if not isinstance(expType, BoolType):
             raise TypeMismatchInStatement(ast)
 
@@ -423,34 +497,48 @@ class StaticChecker(BaseVisitor):
         expType = self.visit(ast.exp, c)
         if not isinstance(expType, BoolType):
             raise TypeMismatchInStatement(ast)
-        [self.visit(_varDecl, c) for _varDecl in ast.sl[0]]
-        [self.visit(_stmt, c) for _stmt in ast.sl[1]]
+
+        varList = []
+        for currentVarDecl in ast.sl[0]:
+            _var = Symbol(currentVarDecl.variable.name, Unknown(), Variable())
+            self.checkRedeclared(_var, varList)
+            varList.append(_var)
+            self.visit(currentVarDecl, c)
+
+        localScope = varList.copy()
+        localScopeHavingGlobalOnly = []  # Make it faster to update global symbol later
+        for symbolGlobal in c:
+            if not self.isNameInScope(symbolGlobal.name, localScope):
+                localScope.append(symbolGlobal)
+                localScopeHavingGlobalOnly.append(symbolGlobal)
+
+        [self.visit(_stmt, localScope) for _stmt in ast.sl[1]]
+
     # method:Id
     # param:List[Expr]
-
     def visitCallStmt(self, ast, c):
-        StaticChecker.checkUndeclared(ast.method.name, c, Function())
+        self.checkUndeclared(ast.method.name, c, Function())
         callStmtType = self.visit(ast.method, c)
-        if not isinstance(callStmtType.restype, VoidType) or len(ast.param) != len(callStmtType.intype):
+        if len(ast.param) != len(callStmtType.intype):
             raise TypeMismatchInStatement(ast)
 
-        _callStmt = StaticChecker.getSymbol(ast.method.name, c)
+        _callStmt = self.getSymbol(ast.method.name, c)
         argsTypeList = [self.visit(_param, c) for _param in ast.param]
 
-        for i in range(len(ast.argsTypeList)):
+        for i in range(len(ast.param)):
             _argType = argsTypeList[i]
             _callExprIntype = _callStmt.mtype.intype[i]
             if type(_argType) is Unknown:
                 if type(_callExprIntype) is Unknown:
                     return TypeCannotBeInferred()
                 else:
-                    argIndex = StaticChecker.getSymbolIndex(
+                    argIndex = self.getSymbolIndex(
                         ast.param[i].name, c)
                     c[argIndex].mtype = _callExprIntype
                     argsTypeList[i] = _callExprIntype
             else:
                 if type(_callExprIntype) is Unknown:
-                    _callExprIndex = StaticChecker.getSymbolIndex(
+                    _callExprIndex = self.getSymbolIndex(
                         _callStmt.name, c)
                     c[_callExprIndex].mtype.intype[i] = _argType
                     _callStmt.mtype.intype[i] = _argType
